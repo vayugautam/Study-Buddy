@@ -23,8 +23,18 @@ backend/uploads/
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs & Errors
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 backend/logs/
+backend/errors.log
+backend/last-error.json
+
+# Test & Debug Scripts
+backend/test-*.js
+backend/list-models.js
+docker-compose.yml
+
+# Documentation / Scratchpads
+Prompts/
