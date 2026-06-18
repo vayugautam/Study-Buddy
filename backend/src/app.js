@@ -4,6 +4,11 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import mongoSanitize from 'express-mongo-sanitize';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import config from './config/env.config.js';
 import { mountRoutes } from './routes/index.js';
@@ -22,7 +27,9 @@ const app = express();
 /* ------------------------------------------------------------------ */
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled to prevent blocking React's inline styles/scripts in production
+}));
 
 // CORS
 app.use(
@@ -59,12 +66,23 @@ app.use(globalLimiter);
 mountRoutes(app);
 
 /* ------------------------------------------------------------------ */
-/*  404 Handler                                                       */
+/*  Frontend Serving (Production) & 404 Handler                       */
 /* ------------------------------------------------------------------ */
 
-app.all('*', (req, _res, next) => {
-  next(new NotFoundError(`Route ${req.originalUrl}`));
-});
+if (config.env === 'production') {
+  const frontendDistPath = path.join(__dirname, '../../dist');
+  app.use(express.static(frontendDistPath));
+
+  // Catch-all for React Router
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+} else {
+  // Development 404 handler for API routes
+  app.all('*', (req, _res, next) => {
+    next(new NotFoundError(`Route ${req.originalUrl}`));
+  });
+}
 
 /* ------------------------------------------------------------------ */
 /*  Global Error Handler (must be last)                               */
