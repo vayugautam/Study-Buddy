@@ -1,0 +1,252 @@
+{
+  "chat_001": [
+    {
+      "id": "msg_001",
+      "chatId": "chat_001",
+      "role": "user",
+      "content": "What is the role of the nucleus in a cell?",
+      "createdAt": "2024-01-20T13:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_002",
+      "chatId": "chat_001",
+      "role": "ai",
+      "content": "## The Cell Nucleus\n\nThe nucleus is the **control centre** of the cell. It contains the cell's genetic material (DNA) and directs all cellular activities.\n\n### Key Functions:\n- **Stores genetic information** (DNA and RNA)\n- **Directs protein synthesis** via mRNA\n- **Controls cell reproduction** through mitosis\n\nThe nucleus is surrounded by a **nuclear envelope** — a double membrane with pores that regulate the transport of molecules.",
+      "createdAt": "2024-01-20T13:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_001",
+          "noteTitle": "Biology Ch. 4",
+          "pageRef": "Page 8"
+        }
+      ]
+    },
+    {
+      "id": "msg_003",
+      "chatId": "chat_001",
+      "role": "user",
+      "content": "Which organelle produces ATP?",
+      "createdAt": "2024-01-20T13:05:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_004",
+      "chatId": "chat_001",
+      "role": "ai",
+      "content": "## ATP Production\n\nThe **mitochondria** is responsible for producing ATP through a process called **cellular respiration**.\n\n```\nGlucose + O₂ → ATP + CO₂ + H₂O\n```\n\nMitochondria are often called the *powerhouse of the cell* because they generate most of the cell's supply of adenosine triphosphate (ATP), used as a source of chemical energy.",
+      "createdAt": "2024-01-20T13:06:00Z",
+      "citations": [
+        {
+          "noteId": "note_001",
+          "noteTitle": "Biology Ch. 4",
+          "pageRef": "Page 12"
+        }
+      ]
+    },
+    {
+      "id": "msg_005",
+      "chatId": "chat_001",
+      "role": "user",
+      "content": "Give me 3 quiz questions on this topic.",
+      "createdAt": "2024-01-20T13:10:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_006",
+      "chatId": "chat_001",
+      "role": "ai",
+      "content": "Here are **3 quiz questions** on Cell Biology:\n\n1. What is the primary function of the mitochondria?\n2. Where is DNA stored in a eukaryotic cell?\n3. What phase of mitosis involves chromosome alignment at the equator?\n\n> Would you like me to generate a full quiz from your Biology notes?",
+      "createdAt": "2024-01-20T13:11:00Z",
+      "citations": [
+        {
+          "noteId": "note_001",
+          "noteTitle": "Biology Ch. 4",
+          "pageRef": null
+        }
+      ]
+    }
+  ],
+  "chat_002": [
+    {
+      "id": "msg_007",
+      "chatId": "chat_002",
+      "role": "user",
+      "content": "What were the main causes of World War II?",
+      "createdAt": "2024-01-19T09:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_008",
+      "chatId": "chat_002",
+      "role": "ai",
+      "content": "## Main Causes of World War II\n\nHistorians generally identify several interconnected causes:\n\n### 1. Treaty of Versailles (1919)\nThe harsh terms imposed on Germany created deep resentment, economic hardship, and political instability.\n\n### 2. Rise of Fascism\n- **Nazi Germany** under Adolf Hitler\n- **Fascist Italy** under Mussolini\n- **Militarist Japan**\n\n### 3. Appeasement Policy\nBritain and France's policy of conceding to Hitler's demands (e.g., Munich Agreement 1938) emboldened aggression.\n\n### 4. Great Depression\nEconomic collapse led populations to support authoritarian leaders promising national revival.",
+      "createdAt": "2024-01-19T09:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_002",
+          "noteTitle": "World War II",
+          "pageRef": "Page 3"
+        }
+      ]
+    },
+    {
+      "id": "msg_009",
+      "chatId": "chat_002",
+      "role": "user",
+      "content": "When did the US enter the war?",
+      "createdAt": "2024-01-19T09:10:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_010",
+      "chatId": "chat_002",
+      "role": "ai",
+      "content": "## US Entry into World War II\n\nThe United States entered World War II on **December 8, 1941** — one day after the Japanese attack on **Pearl Harbor** (December 7, 1941).\n\nPresident Franklin D. Roosevelt described it as *\"a date which will live in infamy\"* in his address to Congress.\n\n**Key facts:**\n- 2,403 Americans killed in the Pearl Harbor attack\n- Congress declared war on Japan the same day\n- Germany and Italy declared war on the US on December 11, 1941",
+      "createdAt": "2024-01-19T09:11:00Z",
+      "citations": [
+        {
+          "noteId": "note_002",
+          "noteTitle": "World War II",
+          "pageRef": "Page 9"
+        }
+      ]
+    }
+  ],
+  "chat_003": [
+    {
+      "id": "msg_011",
+      "chatId": "chat_003",
+      "role": "user",
+      "content": "Can you explain JavaScript closures in simple terms?",
+      "createdAt": "2024-01-17T15:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_012",
+      "chatId": "chat_003",
+      "role": "ai",
+      "content": "## JavaScript Closures\n\nA **closure** is a function that \"remembers\" the variables from its outer scope even after that outer function has finished executing.\n\n```javascript\nfunction makeCounter() {\n  let count = 0; // This variable is \"closed over\"\n  return function() {\n    count++;\n    return count;\n  };\n}\n\nconst counter = makeCounter();\ncounter(); // 1\ncounter(); // 2\n```\n\nIn this example, the inner function retains access to `count` even though `makeCounter` has returned.",
+      "createdAt": "2024-01-17T15:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_003",
+          "noteTitle": "JS Closures",
+          "pageRef": null
+        }
+      ]
+    },
+    {
+      "id": "msg_013",
+      "chatId": "chat_003",
+      "role": "user",
+      "content": "What is lexical scope?",
+      "createdAt": "2024-01-17T15:05:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_014",
+      "chatId": "chat_003",
+      "role": "ai",
+      "content": "## Lexical Scope\n\n**Lexical scope** means that the scope of a variable is determined by **where it is written** in the source code, not where it is called from.\n\n```javascript\nconst x = 'global';\n\nfunction outer() {\n  const x = 'outer';\n  function inner() {\n    console.log(x); // 'outer' — lexical scope\n  }\n  inner();\n}\n```\n\n> The JavaScript engine looks up the scope chain at **parse time**, not at **runtime**. This is what makes closures predictable.",
+      "createdAt": "2024-01-17T15:06:00Z",
+      "citations": [
+        {
+          "noteId": "note_003",
+          "noteTitle": "JS Closures",
+          "pageRef": null
+        }
+      ]
+    },
+    {
+      "id": "msg_015",
+      "chatId": "chat_003",
+      "role": "user",
+      "content": "Give me a practical use case for closures.",
+      "createdAt": "2024-01-17T15:10:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_016",
+      "chatId": "chat_003",
+      "role": "ai",
+      "content": "## Practical Use Case: Data Privacy\n\nClosures are commonly used to create **private variables** — a pattern called the **module pattern**:\n\n```javascript\nfunction createBankAccount(initialBalance) {\n  let balance = initialBalance; // private!\n  return {\n    deposit: (amount) => { balance += amount; },\n    withdraw: (amount) => { balance -= amount; },\n    getBalance: () => balance\n  };\n}\n\nconst account = createBankAccount(100);\naccount.deposit(50);\nconsole.log(account.getBalance()); // 150\nconsole.log(account.balance); // undefined — private!\n```",
+      "createdAt": "2024-01-17T15:11:00Z",
+      "citations": [
+        {
+          "noteId": "note_003",
+          "noteTitle": "JS Closures",
+          "pageRef": null
+        }
+      ]
+    },
+    {
+      "id": "msg_017",
+      "chatId": "chat_003",
+      "role": "user",
+      "content": "What about closures in loops?",
+      "createdAt": "2024-01-17T16:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_018",
+      "chatId": "chat_003",
+      "role": "ai",
+      "content": "## Closures in Loops — Classic Gotcha\n\nThis is a common source of bugs:\n\n```javascript\n// ❌ Bug: all callbacks log 3\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n\n// ✅ Fix 1: Use let (block scope)\nfor (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n\n// ✅ Fix 2: IIFE to capture the value\nfor (var i = 0; i < 3; i++) {\n  ((j) => setTimeout(() => console.log(j), 100))(i);\n}\n```\n\n`let` creates a **new binding** for each iteration, so each closure captures a different `i`.",
+      "createdAt": "2024-01-17T16:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_003",
+          "noteTitle": "JS Closures",
+          "pageRef": null
+        }
+      ]
+    }
+  ],
+  "chat_004": [
+    {
+      "id": "msg_019",
+      "chatId": "chat_004",
+      "role": "user",
+      "content": "Explain Einstein's theory of special relativity simply.",
+      "createdAt": "2024-01-12T08:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_020",
+      "chatId": "chat_004",
+      "role": "ai",
+      "content": "## Special Relativity — Simply Explained\n\nEinstein's **Special Relativity** (1905) rests on two postulates:\n\n1. **The laws of physics are the same** for all observers moving at constant velocity.\n2. **The speed of light is constant** (~299,792,458 m/s) for all observers, regardless of the motion of the source.\n\n### Key Consequences:\n\n| Phenomenon | What it means |\n|---|---|\n| **Time dilation** | Moving clocks tick slower |\n| **Length contraction** | Moving objects appear shorter |\n| **Mass-energy equivalence** | E = mc² |\n\nThe famous equation **E = mc²** tells us that mass and energy are interchangeable.",
+      "createdAt": "2024-01-12T08:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_005",
+          "noteTitle": "Theory of Relativity",
+          "pageRef": null
+        }
+      ]
+    },
+    {
+      "id": "msg_021",
+      "chatId": "chat_004",
+      "role": "user",
+      "content": "What is the difference between special and general relativity?",
+      "createdAt": "2024-01-12T09:00:00Z",
+      "citations": null
+    },
+    {
+      "id": "msg_022",
+      "chatId": "chat_004",
+      "role": "ai",
+      "content": "## Special vs General Relativity\n\n| | Special Relativity (1905) | General Relativity (1915) |\n|---|---|---|\n| **Scope** | Inertial (non-accelerating) frames | All frames including acceleration & gravity |\n| **Key insight** | Speed of light is constant | Gravity is the curvature of spacetime |\n| **Famous result** | E = mc² | Black holes, gravitational waves |\n\n**In short:** Special relativity deals with *constant velocity*; general relativity extends this to *acceleration and gravity*, describing gravity not as a force but as the **warping of spacetime** by mass.",
+      "createdAt": "2024-01-12T09:01:00Z",
+      "citations": [
+        {
+          "noteId": "note_005",
+          "noteTitle": "Theory of Relativity",
+          "pageRef": null
+        }
+      ]
+    }
+  ]
+}

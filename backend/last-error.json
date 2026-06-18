@@ -1,0 +1,12 @@
+{
+  "message": "No token provided. Please log in.",
+  "stack": "Error: No token provided. Please log in.\n    at file:///E:/AI%20Study%20Buddy/backend/src/middlewares/auth.middleware.js:30:11\n    at file:///E:/AI%20Study%20Buddy/backend/src/utils/catchAsync.js:13:19\n    at Layer.handle [as handle_request] (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n    at router.process_params (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at router.handle (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (E:\\AI Study Buddy\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)",
+  "body": {},
+  "query": {},
+  "path": "/api/notes",
+  "headers": {
+    "host": "localhost:3000",
+    "user-agent": "Go-http-client/1.1",
+    "accept-encoding": "gzip"
+  }
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "chat_001",
+    "ownerId": "user_001",
+    "title": "What is the role of the nucleus?",
+    "noteIds": ["note_001"],
+    "messageCount": 6,
+    "lastMessageSnippet": "Mitochondria generate ATP through cellular respiration...",
+    "lastMessageRole": "ai",
+    "createdAt": "2024-01-20T13:00:00Z",
+    "updatedAt": "2024-01-20T14:22:00Z"
+  },
+  {
+    "id": "chat_002",
+    "ownerId": "user_001",
+    "title": "Causes of WW2 explained",
+    "noteIds": ["note_002"],
+    "messageCount": 4,
+    "lastMessageSnippet": "The primary causes were the Treaty of Versailles...",
+    "lastMessageRole": "ai",
+    "createdAt": "2024-01-19T09:00:00Z",
+    "updatedAt": "2024-01-19T10:05:00Z"
+  },
+  {
+    "id": "chat_003",
+    "ownerId": "user_001",
+    "title": "JS closures and scope",
+    "noteIds": ["note_003"],
+    "messageCount": 8,
+    "lastMessageSnippet": "A closure is formed when an inner function...",
+    "lastMessageRole": "ai",
+    "createdAt": "2024-01-17T15:00:00Z",
+    "updatedAt": "2024-01-17T16:40:00Z"
+  },
+  {
+    "id": "chat_004",
+    "ownerId": "user_001",
+    "title": "Relativity study session",
+    "noteIds": ["note_005", "note_004"],
+    "messageCount": 3,
+    "lastMessageSnippet": "Special relativity states that the laws of physics...",
+    "lastMessageRole": "ai",
+    "createdAt": "2024-01-12T08:00:00Z",
+    "updatedAt": "2024-01-12T09:15:00Z"
+  }
+]

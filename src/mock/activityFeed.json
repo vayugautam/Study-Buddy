@@ -1,0 +1,10 @@
+[
+  { "id": "act_001", "type": "pdf_upload", "label": "Uploaded \"Biology Ch. 4 – Cell Division\"", "noteId": "note_001", "createdAt": "2024-01-20T09:00:00Z" },
+  { "id": "act_002", "type": "quiz_complete", "label": "Completed quiz: \"Cell Division Quiz\" — Scored 80%", "quizId": "quiz_001", "createdAt": "2024-01-20T14:22:00Z" },
+  { "id": "act_003", "type": "chat_started", "label": "Started chat: \"What is the role of the nucleus?\"", "chatId": "chat_001", "createdAt": "2024-01-20T13:00:00Z" },
+  { "id": "act_004", "type": "flashcard_created", "label": "Created deck: \"Biology – Cell Division\" (10 cards)", "deckId": "deck_001", "createdAt": "2024-01-19T11:00:00Z" },
+  { "id": "act_005", "type": "pdf_upload", "label": "Uploaded \"World War II – Causes & Effects\"", "noteId": "note_002", "createdAt": "2024-01-19T09:30:00Z" },
+  { "id": "act_006", "type": "chat_started", "label": "Started chat: \"Causes of WW2 explained\"", "chatId": "chat_002", "createdAt": "2024-01-19T09:00:00Z" },
+  { "id": "act_007", "type": "pdf_upload", "label": "Uploaded \"Organic Chemistry Basics\"", "noteId": "note_004", "createdAt": "2024-01-17T08:00:00Z" },
+  { "id": "act_008", "type": "quiz_complete", "label": "Completed quiz: \"WW2 History Quiz\" — Scored 65%", "quizId": "quiz_002", "createdAt": "2024-01-16T15:00:00Z" }
+]

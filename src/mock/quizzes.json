@@ -1,0 +1,298 @@
+[
+  {
+    "id": "quiz_001",
+    "ownerId": "user_001",
+    "noteId": "note_001",
+    "title": "Cell Division Quiz",
+    "subject": "Biology",
+    "description": "Test your knowledge on cell division, organelles, and mitosis from Chapter 4.",
+    "questionCount": 5,
+    "difficulty": "medium",
+    "estimatedMinutes": 8,
+    "createdAt": "2024-01-15T10:00:00Z",
+    "questions": [
+      {
+        "id": "q_001",
+        "quizId": "quiz_001",
+        "text": "Which organelle is known as the 'powerhouse of the cell' and produces ATP?",
+        "topic": "Organelles",
+        "difficulty": "easy",
+        "suggestedSeconds": 30,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_001_a", "letter": "A", "text": "Ribosome" },
+          { "id": "q_001_b", "letter": "B", "text": "Mitochondria" },
+          { "id": "q_001_c", "letter": "C", "text": "Golgi apparatus" },
+          { "id": "q_001_d", "letter": "D", "text": "Lysosome" }
+        ],
+        "correctOptionId": "q_001_b",
+        "explanation": "Mitochondria produce ATP via cellular respiration (oxidative phosphorylation). They are often called the powerhouse of the cell because they supply the cell with its energy currency."
+      },
+      {
+        "id": "q_002",
+        "quizId": "quiz_001",
+        "text": "During which phase of mitosis do chromosomes align along the cell's equatorial plate?",
+        "topic": "Mitosis",
+        "difficulty": "medium",
+        "suggestedSeconds": 45,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_002_a", "letter": "A", "text": "Prophase" },
+          { "id": "q_002_b", "letter": "B", "text": "Anaphase" },
+          { "id": "q_002_c", "letter": "C", "text": "Metaphase" },
+          { "id": "q_002_d", "letter": "D", "text": "Telophase" }
+        ],
+        "correctOptionId": "q_002_c",
+        "explanation": "During Metaphase, chromosomes are pulled to the centre of the cell (the metaphase plate) by spindle fibres attached to the centromeres, ensuring equal distribution to daughter cells."
+      },
+      {
+        "id": "q_003",
+        "quizId": "quiz_001",
+        "text": "What is the primary function of the nucleus in a eukaryotic cell?",
+        "topic": "Cell Structure",
+        "difficulty": "easy",
+        "suggestedSeconds": 30,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_003_a", "letter": "A", "text": "Produce proteins on ribosomes" },
+          { "id": "q_003_b", "letter": "B", "text": "Store lipids and carbohydrates" },
+          { "id": "q_003_c", "letter": "C", "text": "House the cell's genetic material and control cellular activity" },
+          { "id": "q_003_d", "letter": "D", "text": "Break down waste materials via enzymes" }
+        ],
+        "correctOptionId": "q_003_c",
+        "explanation": "The nucleus is the control centre of the cell. It houses the DNA (genetic material) and coordinates activities such as growth, metabolism, protein synthesis, and reproduction."
+      },
+      {
+        "id": "q_004",
+        "quizId": "quiz_001",
+        "text": "Cytokinesis refers to:",
+        "topic": "Cell Division",
+        "difficulty": "medium",
+        "suggestedSeconds": 40,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_004_a", "letter": "A", "text": "The replication of DNA before cell division" },
+          { "id": "q_004_b", "letter": "B", "text": "The division of the cytoplasm following nuclear division" },
+          { "id": "q_004_c", "letter": "C", "text": "The condensation of chromosomes in prophase" },
+          { "id": "q_004_d", "letter": "D", "text": "The breakdown of the nuclear envelope" }
+        ],
+        "correctOptionId": "q_004_b",
+        "explanation": "Cytokinesis is the physical process of cell division that divides the cytoplasm of a parental cell into two daughter cells. It occurs after mitosis (nuclear division) is complete."
+      },
+      {
+        "id": "q_005",
+        "quizId": "quiz_001",
+        "text": "Which of the following best describes the difference between mitosis and meiosis?",
+        "topic": "Mitosis vs Meiosis",
+        "difficulty": "hard",
+        "suggestedSeconds": 60,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_005_a", "letter": "A", "text": "Mitosis produces 4 haploid cells; meiosis produces 2 diploid cells" },
+          { "id": "q_005_b", "letter": "B", "text": "Mitosis produces 2 genetically identical diploid cells; meiosis produces 4 genetically unique haploid cells" },
+          { "id": "q_005_c", "letter": "C", "text": "Both produce the same number of chromosomes as the parent cell" },
+          { "id": "q_005_d", "letter": "D", "text": "Meiosis is used for growth and repair; mitosis is used for sexual reproduction" }
+        ],
+        "correctOptionId": "q_005_b",
+        "explanation": "Mitosis results in two genetically identical diploid daughter cells (used for growth and repair). Meiosis produces four genetically unique haploid cells (gametes) used in sexual reproduction, with genetic variation introduced via crossing over."
+      }
+    ],
+    "attempts": [
+      {
+        "id": "attempt_001",
+        "quizId": "quiz_001",
+        "submittedAt": "2024-01-15T11:00:00Z",
+        "timeTakenSeconds": 312,
+        "score": 60,
+        "correctCount": 3,
+        "incorrectCount": 2,
+        "gradeBand": "C",
+        "answers": [
+          { "questionId": "q_001", "selectedOptionId": "q_001_b", "isCorrect": true },
+          { "questionId": "q_002", "selectedOptionId": "q_002_a", "isCorrect": false },
+          { "questionId": "q_003", "selectedOptionId": "q_003_c", "isCorrect": true },
+          { "questionId": "q_004", "selectedOptionId": "q_004_b", "isCorrect": true },
+          { "questionId": "q_005", "selectedOptionId": "q_005_a", "isCorrect": false }
+        ],
+        "topicBreakdown": [
+          { "topic": "Organelles", "correct": 1, "total": 1 },
+          { "topic": "Mitosis", "correct": 0, "total": 1 },
+          { "topic": "Cell Structure", "correct": 1, "total": 1 },
+          { "topic": "Cell Division", "correct": 1, "total": 1 },
+          { "topic": "Mitosis vs Meiosis", "correct": 0, "total": 1 }
+        ]
+      },
+      {
+        "id": "attempt_002",
+        "quizId": "quiz_001",
+        "submittedAt": "2024-01-17T09:30:00Z",
+        "timeTakenSeconds": 285,
+        "score": 72,
+        "correctCount": 4,
+        "incorrectCount": 1,
+        "gradeBand": "C+",
+        "answers": [
+          { "questionId": "q_001", "selectedOptionId": "q_001_b", "isCorrect": true },
+          { "questionId": "q_002", "selectedOptionId": "q_002_c", "isCorrect": true },
+          { "questionId": "q_003", "selectedOptionId": "q_003_c", "isCorrect": true },
+          { "questionId": "q_004", "selectedOptionId": "q_004_b", "isCorrect": true },
+          { "questionId": "q_005", "selectedOptionId": "q_005_a", "isCorrect": false }
+        ],
+        "topicBreakdown": [
+          { "topic": "Organelles", "correct": 1, "total": 1 },
+          { "topic": "Mitosis", "correct": 1, "total": 1 },
+          { "topic": "Cell Structure", "correct": 1, "total": 1 },
+          { "topic": "Cell Division", "correct": 1, "total": 1 },
+          { "topic": "Mitosis vs Meiosis", "correct": 0, "total": 1 }
+        ]
+      },
+      {
+        "id": "attempt_003",
+        "quizId": "quiz_001",
+        "submittedAt": "2024-01-20T14:22:00Z",
+        "timeTakenSeconds": 248,
+        "score": 80,
+        "correctCount": 4,
+        "incorrectCount": 1,
+        "gradeBand": "B",
+        "answers": [
+          { "questionId": "q_001", "selectedOptionId": "q_001_b", "isCorrect": true },
+          { "questionId": "q_002", "selectedOptionId": "q_002_c", "isCorrect": true },
+          { "questionId": "q_003", "selectedOptionId": "q_003_c", "isCorrect": true },
+          { "questionId": "q_004", "selectedOptionId": "q_004_b", "isCorrect": true },
+          { "questionId": "q_005", "selectedOptionId": "q_005_d", "isCorrect": false }
+        ],
+        "topicBreakdown": [
+          { "topic": "Organelles", "correct": 1, "total": 1 },
+          { "topic": "Mitosis", "correct": 1, "total": 1 },
+          { "topic": "Cell Structure", "correct": 1, "total": 1 },
+          { "topic": "Cell Division", "correct": 1, "total": 1 },
+          { "topic": "Mitosis vs Meiosis", "correct": 0, "total": 1 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "quiz_002",
+    "ownerId": "user_001",
+    "noteId": "note_002",
+    "title": "WW2 History Quiz",
+    "subject": "History",
+    "description": "Test your understanding of the causes, key events, and effects of World War II.",
+    "questionCount": 5,
+    "difficulty": "medium",
+    "estimatedMinutes": 10,
+    "createdAt": "2024-01-16T14:00:00Z",
+    "questions": [
+      {
+        "id": "q_006",
+        "quizId": "quiz_002",
+        "text": "Which treaty imposed harsh reparations on Germany after World War I, contributing to the rise of Nazi Germany?",
+        "topic": "Causes of WW2",
+        "difficulty": "easy",
+        "suggestedSeconds": 30,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_006_a", "letter": "A", "text": "Treaty of Westphalia" },
+          { "id": "q_006_b", "letter": "B", "text": "Treaty of Versailles" },
+          { "id": "q_006_c", "letter": "C", "text": "Treaty of Brest-Litovsk" },
+          { "id": "q_006_d", "letter": "D", "text": "Locarno Treaties" }
+        ],
+        "correctOptionId": "q_006_b",
+        "explanation": "The Treaty of Versailles (1919) forced Germany to accept sole responsibility for the war, pay enormous reparations, and cede territory. The resulting economic and political instability created fertile ground for the rise of Adolf Hitler and the Nazi party."
+      },
+      {
+        "id": "q_007",
+        "quizId": "quiz_002",
+        "text": "On what date did Japan attack Pearl Harbor, bringing the United States into World War II?",
+        "topic": "Key Events",
+        "difficulty": "easy",
+        "suggestedSeconds": 30,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_007_a", "letter": "A", "text": "September 1, 1939" },
+          { "id": "q_007_b", "letter": "B", "text": "June 6, 1944" },
+          { "id": "q_007_c", "letter": "C", "text": "December 7, 1941" },
+          { "id": "q_007_d", "letter": "D", "text": "August 6, 1945" }
+        ],
+        "correctOptionId": "q_007_c",
+        "explanation": "Japan launched a surprise military strike against the US naval base at Pearl Harbor, Hawaii, on December 7, 1941. The following day, the US declared war on Japan, entering World War II."
+      },
+      {
+        "id": "q_008",
+        "quizId": "quiz_002",
+        "text": "Which of the following best describes the policy of 'appeasement' pursued by Britain and France before WW2?",
+        "topic": "Causes of WW2",
+        "difficulty": "medium",
+        "suggestedSeconds": 45,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_008_a", "letter": "A", "text": "Military alliances formed to deter German aggression" },
+          { "id": "q_008_b", "letter": "B", "text": "Economic sanctions imposed on Germany to weaken Hitler's regime" },
+          { "id": "q_008_c", "letter": "C", "text": "Granting concessions to aggressive powers to avoid war" },
+          { "id": "q_008_d", "letter": "D", "text": "A policy of neutrality refusing any involvement in European affairs" }
+        ],
+        "correctOptionId": "q_008_c",
+        "explanation": "Appeasement was a diplomatic policy of making concessions to an aggressive power to avoid conflict. The most notable example was the Munich Agreement (1938), where Britain and France allowed Hitler to annex Czechoslovakia's Sudetenland, hoping to satisfy his territorial ambitions."
+      },
+      {
+        "id": "q_009",
+        "quizId": "quiz_002",
+        "text": "What was the estimated total number of fatalities in World War II, making it the deadliest conflict in human history?",
+        "topic": "Effects of WW2",
+        "difficulty": "medium",
+        "suggestedSeconds": 40,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_009_a", "letter": "A", "text": "10–20 million" },
+          { "id": "q_009_b", "letter": "B", "text": "30–40 million" },
+          { "id": "q_009_c", "letter": "C", "text": "50–60 million" },
+          { "id": "q_009_d", "letter": "D", "text": "70–85 million" }
+        ],
+        "correctOptionId": "q_009_d",
+        "explanation": "World War II resulted in an estimated 70–85 million fatalities, including both military personnel and civilians. This figure includes deaths from military combat, the Holocaust, war crimes, famine, and disease directly related to the war."
+      },
+      {
+        "id": "q_010",
+        "quizId": "quiz_002",
+        "text": "Which international organisation was founded after WW2 to maintain global peace and prevent future wars?",
+        "topic": "Effects of WW2",
+        "difficulty": "hard",
+        "suggestedSeconds": 50,
+        "imageUrl": null,
+        "options": [
+          { "id": "q_010_a", "letter": "A", "text": "The League of Nations" },
+          { "id": "q_010_b", "letter": "B", "text": "NATO" },
+          { "id": "q_010_c", "letter": "C", "text": "The United Nations" },
+          { "id": "q_010_d", "letter": "D", "text": "The European Union" }
+        ],
+        "correctOptionId": "q_010_c",
+        "explanation": "The United Nations (UN) was established on October 24, 1945 with the aim of preventing future wars and promoting international cooperation. It replaced the failed League of Nations. The UN Charter was signed by 51 founding member states."
+      }
+    ],
+    "attempts": [
+      {
+        "id": "attempt_004",
+        "quizId": "quiz_002",
+        "submittedAt": "2024-01-16T15:00:00Z",
+        "timeTakenSeconds": 380,
+        "score": 65,
+        "correctCount": 3,
+        "incorrectCount": 2,
+        "gradeBand": "D",
+        "answers": [
+          { "questionId": "q_006", "selectedOptionId": "q_006_b", "isCorrect": true },
+          { "questionId": "q_007", "selectedOptionId": "q_007_c", "isCorrect": true },
+          { "questionId": "q_008", "selectedOptionId": "q_008_a", "isCorrect": false },
+          { "questionId": "q_009", "selectedOptionId": "q_009_c", "isCorrect": false },
+          { "questionId": "q_010", "selectedOptionId": "q_010_c", "isCorrect": true }
+        ],
+        "topicBreakdown": [
+          { "topic": "Causes of WW2", "correct": 1, "total": 2 },
+          { "topic": "Key Events", "correct": 1, "total": 1 },
+          { "topic": "Effects of WW2", "correct": 1, "total": 2 }
+        ]
+      }
+    ]
+  }
+]

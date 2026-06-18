@@ -1,0 +1,208 @@
+[
+  {
+    "id": "deck_001",
+    "ownerId": "user_001",
+    "noteId": "note_001",
+    "title": "Biology – Cell Division",
+    "subject": "Biology",
+    "description": "Key concepts from Chapter 4 covering cell structure, organelles, mitosis, and meiosis.",
+    "cardCount": 10,
+    "createdAt": "2024-01-19T11:00:00Z",
+    "lastStudiedAt": "2024-01-20T14:30:00Z",
+    "cards": [
+      {
+        "id": "card_001",
+        "deckId": "deck_001",
+        "front": "What is the function of the mitochondria?",
+        "back": "The mitochondria produce ATP (energy) through cellular respiration. They are often called the 'powerhouse of the cell'.",
+        "explanation": "Mitochondria convert glucose and oxygen into ATP via oxidative phosphorylation, supplying the cell with its primary energy source.",
+        "subject": "Biology",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_002",
+        "deckId": "deck_001",
+        "front": "What is the role of the nucleus?",
+        "back": "The nucleus is the control centre of the cell. It stores DNA and directs all cellular activities including protein synthesis and cell division.",
+        "explanation": "The nucleus contains the cell's genetic blueprint (DNA) and coordinates gene expression, making it essential for cell function and reproduction.",
+        "subject": "Biology",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_003",
+        "deckId": "deck_001",
+        "front": "What are the four phases of mitosis in order?",
+        "back": "Prophase → Metaphase → Anaphase → Telophase (PMAT)",
+        "explanation": "During Prophase chromosomes condense; Metaphase: they align at the equatorial plate; Anaphase: chromatids separate to poles; Telophase: nuclear envelopes reform.",
+        "subject": "Biology",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_004",
+        "deckId": "deck_001",
+        "front": "What is cytokinesis?",
+        "back": "Cytokinesis is the physical division of the cytoplasm following nuclear division (mitosis or meiosis), producing two separate daughter cells.",
+        "explanation": "In animal cells, cytokinesis occurs via a cleavage furrow that pinches the cell in two. In plant cells, a cell plate forms between the two new nuclei.",
+        "subject": "Biology",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_005",
+        "deckId": "deck_001",
+        "front": "How does mitosis differ from meiosis?",
+        "back": "Mitosis: 1 division → 2 diploid identical daughter cells (growth/repair). Meiosis: 2 divisions → 4 haploid unique daughter cells (sexual reproduction).",
+        "explanation": "Meiosis introduces genetic diversity through crossing over and independent assortment, while mitosis maintains the chromosome number for somatic cell replacement.",
+        "subject": "Biology",
+        "difficulty": "hard",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_006",
+        "deckId": "deck_001",
+        "front": "What is the nuclear envelope?",
+        "back": "A double membrane surrounding the nucleus that separates the nuclear contents from the cytoplasm. It contains pores that regulate molecular transport.",
+        "explanation": "The nuclear pores allow selective passage of molecules such as mRNA (out) and proteins like transcription factors (in), controlling gene expression.",
+        "subject": "Biology",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_007",
+        "deckId": "deck_001",
+        "front": "What is a centromere?",
+        "back": "A centromere is the region of a chromosome where sister chromatids are joined together and where the spindle fibres attach during cell division.",
+        "explanation": "Correct centromere function is critical for chromosome segregation during mitosis and meiosis; errors can lead to aneuploidy (abnormal chromosome numbers).",
+        "subject": "Biology",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_008",
+        "deckId": "deck_001",
+        "front": "What is the cell cycle?",
+        "back": "The cell cycle is the sequence of events a cell goes through from its creation to its own division. It consists of Interphase (G1, S, G2) and the Mitotic phase (M).",
+        "explanation": "During S phase, DNA is replicated. G1 and G2 are growth phases. The M phase includes both mitosis and cytokinesis.",
+        "subject": "Biology",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_009",
+        "deckId": "deck_001",
+        "front": "What is the endoplasmic reticulum (ER) and its two types?",
+        "back": "The ER is a network of membranes for protein and lipid synthesis. Rough ER (has ribosomes, makes proteins); Smooth ER (no ribosomes, makes lipids, detoxifies).",
+        "explanation": "Rough ER studded with ribosomes processes and packages secretory proteins. Smooth ER is important in drug metabolism and steroid hormone synthesis.",
+        "subject": "Biology",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_010",
+        "deckId": "deck_001",
+        "front": "What is apoptosis?",
+        "back": "Apoptosis is programmed cell death — a controlled process by which the body eliminates damaged, infected, or unnecessary cells to maintain tissue homeostasis.",
+        "explanation": "Unlike necrosis (uncontrolled death), apoptosis is orderly and energy-dependent. It is essential for development and preventing cancer, as damaged cells that evade apoptosis can proliferate uncontrollably.",
+        "subject": "Biology",
+        "difficulty": "hard",
+        "masteryStatus": "unseen"
+      }
+    ]
+  },
+  {
+    "id": "deck_002",
+    "ownerId": "user_001",
+    "noteId": "note_002",
+    "title": "World War II – Key Facts",
+    "subject": "History",
+    "description": "Essential facts, dates, causes, and effects of World War II for exam revision.",
+    "cardCount": 8,
+    "createdAt": "2024-01-19T12:00:00Z",
+    "lastStudiedAt": "2024-01-19T13:00:00Z",
+    "cards": [
+      {
+        "id": "card_011",
+        "deckId": "deck_002",
+        "front": "When did World War II begin and end?",
+        "back": "WW2 began on September 1, 1939 (German invasion of Poland) and ended on September 2, 1945 (Japan's formal surrender).",
+        "explanation": "The war in Europe ended with Germany's unconditional surrender on May 8, 1945 (V-E Day). The Pacific War ended after the atomic bombings of Hiroshima and Nagasaki.",
+        "subject": "History",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_012",
+        "deckId": "deck_002",
+        "front": "What was the Treaty of Versailles and how did it contribute to WW2?",
+        "back": "The Treaty of Versailles (1919) ended WW1 and imposed harsh penalties on Germany — massive reparations, territorial losses, and sole war guilt — fuelling resentment that Hitler exploited.",
+        "explanation": "Economists like John Maynard Keynes warned that the punitive terms would destabilise Germany. The resulting economic depression and national humiliation created conditions for the rise of extremism.",
+        "subject": "History",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_013",
+        "deckId": "deck_002",
+        "front": "What was the policy of appeasement?",
+        "back": "Appeasement was Britain and France's policy of granting concessions to Hitler to avoid another war. The Munich Agreement (1938) allowed Germany to annex the Sudetenland.",
+        "explanation": "Neville Chamberlain famously promised 'peace for our time' after Munich. Appeasement ultimately failed when Hitler invaded Poland in 1939, triggering the war.",
+        "subject": "History",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_014",
+        "deckId": "deck_002",
+        "front": "What event brought the United States into WW2?",
+        "back": "Japan's surprise attack on the US naval base at Pearl Harbor, Hawaii on December 7, 1941. The US declared war on Japan the following day.",
+        "explanation": "The attack destroyed or damaged 19 US naval vessels and 300 aircraft, killing 2,403 Americans. Germany and Italy subsequently declared war on the US on December 11.",
+        "subject": "History",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_015",
+        "deckId": "deck_002",
+        "front": "Who were the main Allied Powers in WW2?",
+        "back": "The main Allied Powers were the United Kingdom, the United States, the Soviet Union, France, and China. They fought against the Axis Powers (Germany, Italy, Japan).",
+        "explanation": "The Grand Alliance formed in stages: the UK fought from 1939; the USSR joined after Operation Barbarossa (1941); the US joined after Pearl Harbor (1941).",
+        "subject": "History",
+        "difficulty": "easy",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_016",
+        "deckId": "deck_002",
+        "front": "What was the Holocaust?",
+        "back": "The Holocaust was the systematic, state-sponsored persecution and murder of six million Jews and millions of others by the Nazi regime between 1941 and 1945.",
+        "explanation": "The Nazis used a network of concentration and extermination camps across occupied Europe. The Holocaust was a genocide directed primarily at Jews, but also targeted Roma, disabled people, political opponents, and others.",
+        "subject": "History",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_017",
+        "deckId": "deck_002",
+        "front": "What was D-Day?",
+        "back": "D-Day (June 6, 1944) was the Allied amphibious invasion of Nazi-occupied France at Normandy. It was the largest seaborne invasion in history and marked a turning point in the war in Europe.",
+        "explanation": "Operation Overlord involved over 156,000 Allied troops landing on five beaches (Utah, Omaha, Gold, Juno, Sword). It opened a crucial Western Front, accelerating Germany's defeat.",
+        "subject": "History",
+        "difficulty": "medium",
+        "masteryStatus": "unseen"
+      },
+      {
+        "id": "card_018",
+        "deckId": "deck_002",
+        "front": "What were two major consequences of World War II?",
+        "back": "1. The founding of the United Nations (1945) to maintain international peace. 2. The beginning of the Cold War between the US and Soviet Union, reshaping global geopolitics for decades.",
+        "explanation": "WW2 also led to decolonisation across Asia and Africa, the Marshall Plan to rebuild Europe, the Nuremberg Trials establishing international criminal law, and the nuclear age.",
+        "subject": "History",
+        "difficulty": "hard",
+        "masteryStatus": "unseen"
+      }
+    ]
+  }
+]
