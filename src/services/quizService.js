@@ -26,6 +26,7 @@ const quizService = {
   },
 
   generateQuiz: ({ noteId, count = 5, difficulty = 'medium' }) => {
+    console.log("PAYLOAD BEING SENT TO BACKEND: " + JSON.stringify({ noteId, count, difficulty }));
     return adapter.post(
       () => {
         const existing = mockQuizzes.find(q => q.noteId === noteId)
@@ -34,7 +35,10 @@ const quizService = {
       '/quizzes/generate',
       { noteId, count, difficulty },
       3000
-    ).then(res => res.quiz || res)
+    ).catch(err => {
+      console.error("SERVER ERROR DETAILS: " + JSON.stringify(err.response?.data?.error?.details || err.response?.data));
+      throw err;
+    }).then(res => res.quiz || res)
   },
 
   submitQuiz: ({ quizId, answers, timeTakenSeconds }) => {

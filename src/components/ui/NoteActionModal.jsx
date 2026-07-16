@@ -113,18 +113,22 @@ export default function NoteActionModal({ note, isOpen, onClose }) {
               <ActionTile
                 emoji="🎯"
                 label="Generate Quiz"
-                description="Test your knowledge"
-                color="bg-emerald-50 hover:bg-emerald-100 border-emerald-200"
-                textColor="text-emerald-700"
-                onClick={() => setActiveTab('quiz')}
+                description={(!note.status || note.status === 'ready') ? "Test your knowledge" : "Processing..."}
+                color={(!note.status || note.status === 'ready') ? "bg-emerald-50 hover:bg-emerald-100 border-emerald-200" : "bg-neutral-100 border-neutral-200 opacity-60 cursor-not-allowed"}
+                textColor={(!note.status || note.status === 'ready') ? "text-emerald-700" : "text-neutral-500"}
+                onClick={() => {
+                  if (!note.status || note.status === 'ready') setActiveTab('quiz')
+                }}
               />
               <ActionTile
                 emoji="🗂️"
                 label="Flashcards"
-                description="Create study cards"
-                color="bg-amber-50 hover:bg-amber-100 border-amber-200"
-                textColor="text-amber-700"
-                onClick={() => setActiveTab('flashcards')}
+                description={(!note.status || note.status === 'ready') ? "Create study cards" : "Processing..."}
+                color={(!note.status || note.status === 'ready') ? "bg-amber-50 hover:bg-amber-100 border-amber-200" : "bg-neutral-100 border-neutral-200 opacity-60 cursor-not-allowed"}
+                textColor={(!note.status || note.status === 'ready') ? "text-amber-700" : "text-neutral-500"}
+                onClick={() => {
+                  if (!note.status || note.status === 'ready') setActiveTab('flashcards')
+                }}
               />
             </motion.div>
           )}

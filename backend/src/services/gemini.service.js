@@ -16,6 +16,49 @@ class GeminiService {
     });
   }
 
+  /**
+   * Check whether an error is a transient/retryable server error (503, 500, etc.).
+   */
+  _isRetryableError(error) {
+    const msg = error.message || '';
+    return (
+      error.status === 503 ||
+      error.status === 500 ||
+      msg.includes('503') ||
+      msg.includes('UNAVAILABLE') ||
+      msg.includes('high demand') ||
+      msg.includes('INTERNAL')
+    );
+  }
+
+  /**
+   * Retry an async function with exponential backoff.
+   * @param {Function} fn - Async function to retry.
+   * @param {number} maxRetries - Maximum number of retry attempts.
+   * @param {number} baseDelayMs - Base delay in ms (doubles each attempt).
+   * @param {string} context - Description for logging.
+   */
+  async _retryWithBackoff(fn, { maxRetries = 2, baseDelayMs = 2000, context = '' } = {}) {
+    let lastError;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error;
+        if (attempt < maxRetries && this._isRetryableError(error)) {
+          const delay = baseDelayMs * Math.pow(2, attempt - 1);
+          logger.warn(`Retryable error on attempt ${attempt}/${maxRetries} for ${context}. Retrying in ${delay}ms...`, {
+            error: error.message,
+          });
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+    throw lastError;
+  }
+
   _handleApiError(error, contextMessage) {
     if (error instanceof GeminiApiError || error instanceof LlmQuotaExceededError) {
       throw error;
@@ -41,20 +84,30 @@ class GeminiService {
 
   async generateEmbeddings(texts) {
     try {
-      const results = await Promise.all(
-        texts.map(async (text) => {
-          try {
-            const response = await this.ai.models.embedContent({
-              model: 'gemini-embedding-2',
-              contents: text,
-            });
-            return response.embeddings[0].values;
-          } catch (e) {
-            logger.error('text-embedding-004 failed natively', { originalError: e.message });
-            throw e;
-          }
-        }),
-      );
+      const results = [];
+      const BATCH_SIZE = 5;
+      for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+        const batch = texts.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map(async (text) => {
+            return this._retryWithBackoff(
+              async () => {
+                const response = await this.ai.models.embedContent({
+                  model: 'gemini-embedding-2',
+                  contents: text,
+                });
+                return response.embeddings[0].values;
+              },
+              { maxRetries: 2, baseDelayMs: 1000, context: `embedding chunk ${i}` }
+            );
+          }),
+        );
+        results.push(...batchResults);
+        // Small delay between batches to avoid rate limits
+        if (i + BATCH_SIZE < texts.length) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
       return results;
     } catch (error) {
       this._handleApiError(error, 'Failed to generate embeddings');
@@ -75,18 +128,23 @@ class GeminiService {
       });
 
       logger.info('PDF uploaded, starting Gemini extraction...', { fileName: uploadResult.name });
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: [
-          {
-            fileData: {
-              fileUri: uploadResult.uri,
-              mimeType: uploadResult.mimeType,
-            }
-          },
-          { text: 'Extract all the text from this document exactly as it is written. Maintain layout, tables, and paragraphs. Do not summarize or omit anything. Just output the raw text.' }
-        ]
-      });
+
+      // Use retry with backoff for the generateContent call to handle 503 "high demand" errors
+      const response = await this._retryWithBackoff(
+        () => this.ai.models.generateContent({
+          model: 'gemini-3.5-flash',
+          contents: [
+            {
+              fileData: {
+                fileUri: uploadResult.uri,
+                mimeType: uploadResult.mimeType,
+              }
+            },
+            { text: 'Extract all the text from this document exactly as it is written. Maintain layout, tables, and paragraphs. Do not summarize or omit anything. Just output the raw text.' }
+          ]
+        }),
+        { maxRetries: 2, baseDelayMs: 2000, context: 'Gemini PDF OCR' }
+      );
 
       return response.text;
     } catch (error) {

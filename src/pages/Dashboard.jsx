@@ -22,6 +22,17 @@ export default function Dashboard() {
     fetchQuizzes()
   }, [fetchNotes, fetchQuizzes])
 
+  // Poll for notes that are still processing
+  useEffect(() => {
+    const hasProcessingNotes = notes.some(note => note.status === 'processing')
+    if (hasProcessingNotes) {
+      const interval = setInterval(() => {
+        fetchNotes()
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [notes, fetchNotes])
+
   const stats = user?.stats || {}
 
   const allAttempts = quizzes.flatMap(q => q.attempts || [])

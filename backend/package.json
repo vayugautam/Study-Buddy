@@ -6,7 +6,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon --ignore data/ --ignore uploads/ --ignore '*.log' src/server.js",
     "test": "jest"
   },
   "keywords": [],

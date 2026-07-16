@@ -41,6 +41,7 @@ export const validate = (schema) => (req, _res, next) => {
       const details = err.errors.map(
         (e) => `${e.path.join('.')}: ${e.message}`
       );
+      console.error('ZOD VALIDATION FAILED details:', details);
       throw new ValidationError(details);
     }
     next(err);
