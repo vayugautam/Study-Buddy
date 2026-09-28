@@ -136,12 +136,22 @@ const createChatSlice = (set, get) => ({
         i++
       }, 30)
     } catch (err) {
+      const serverMessage = err?.response?.data?.error?.message;
+      let displayMessage = 'Oops! I encountered an error while trying to generate an answer. Please try again.';
+      if (serverMessage) {
+        if (serverMessage.toLowerCase().includes('overloaded') || serverMessage.toLowerCase().includes('quota') || serverMessage.toLowerCase().includes('rate limit')) {
+          displayMessage = 'The AI model is currently experiencing high demand. Please try sending your message again in a few moments.';
+        } else {
+          displayMessage = `Error: ${serverMessage}`;
+        }
+      }
+
       set((s) => {
         const errorMsg = {
           id: `msg_error_${Date.now()}`,
           chatId,
           role: 'ai',
-          content: 'Oops! I encountered an error while trying to generate an answer. Please check your connection or log in again.',
+          content: displayMessage,
           createdAt: new Date().toISOString(),
           citations: []
         }

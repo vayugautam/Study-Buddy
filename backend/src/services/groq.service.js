@@ -16,73 +16,113 @@ class GroqService {
     });
   }
 
+  _isRetryableError(error) {
+    const msg = (error?.message || '').toLowerCase();
+    const code = error?.error?.error?.code || error?.code || '';
+    return (
+      error.status === 503 ||
+      error.status === 429 ||
+      error.status === 500 ||
+      msg.includes('503') ||
+      msg.includes('429') ||
+      msg.includes('overloaded') ||
+      msg.includes('rate_limit_exceeded') ||
+      msg.includes('service unavailable') ||
+      msg.includes('high demand') ||
+      msg.includes('resource_exhausted') ||
+      code === 'rate_limit_exceeded'
+    );
+  }
+
   _handleApiError(error, contextMessage) {
     if (error instanceof GroqApiError || error instanceof LlmQuotaExceededError) {
       throw error;
     }
 
     const isQuotaError =
-      error.status === 429 ||
-      (error.message && error.message.includes('429')) ||
-      (error.error && error.error.error && error.error.error.code === 'rate_limit_exceeded');
+      error?.status === 429 ||
+      (error?.message && error.message.includes('429')) ||
+      (error?.error?.error && error.error.error.code === 'rate_limit_exceeded');
 
     if (isQuotaError) {
-      logger.warn(`Groq Quota Exceeded: ${contextMessage}`, { originalError: error.message });
+      logger.warn(`Groq Quota Exceeded: ${contextMessage}`, { originalError: error?.message });
       throw new LlmQuotaExceededError('Groq API quota exceeded. Please wait a minute and try again.');
     }
 
-    logger.error(`Groq API failed: ${contextMessage}`, { error: error.message });
-    throw new GroqApiError(`${contextMessage}: ${error.message}`);
+    logger.error(`Groq API failed: ${contextMessage}`, { error: error?.message });
+    throw new GroqApiError(`${contextMessage}: ${error?.message || 'Upstream provider error'}`);
+  }
+
+  async _executeWithFallback(apiFn, contextMessage, models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']) {
+    let lastError;
+
+    for (const model of models) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          return await apiFn(model);
+        } catch (error) {
+          lastError = error;
+          const isRetryable = this._isRetryableError(error);
+
+          logger.warn(`Groq request failed with model "${model}" (attempt ${attempt}/2): ${error.message}`);
+
+          if (isRetryable && attempt < 2) {
+            await new Promise((res) => setTimeout(res, 1200));
+            continue;
+          }
+
+          break;
+        }
+      }
+    }
+
+    this._handleApiError(lastError, contextMessage);
   }
 
   async generateChatResponse(systemPrompt, chatHistory, userQuery) {
-    try {
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...chatHistory.map((msg) => ({
-          role: msg.role === 'assistant' ? 'assistant' : 'user',
-          content: msg.content,
-        })),
-        { role: 'user', content: userQuery },
-      ];
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...chatHistory.map((msg) => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content,
+      })),
+      { role: 'user', content: userQuery },
+    ];
 
+    return this._executeWithFallback(async (model) => {
       const response = await this.groq.chat.completions.create({
         messages,
-        model: 'llama-3.3-70b-versatile',
+        model,
         temperature: 0.2,
         max_tokens: 800,
       });
 
       return response.choices[0].message.content;
-    } catch (error) {
-      this._handleApiError(error, 'Failed to generate chat response');
-    }
+    }, 'Failed to generate chat response');
   }
 
   async generateStructuredData(systemPrompt, context) {
-    try {
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `CONTEXT:\n${context}` },
-      ];
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `CONTEXT:\n${context}` },
+    ];
 
+    return this._executeWithFallback(async (model) => {
       const response = await this.groq.chat.completions.create({
         messages,
-        model: 'llama-3.3-70b-versatile',
+        model,
         temperature: 0.1,
         max_tokens: 2000,
         response_format: { type: 'json_object' },
       });
 
-      return JSON.parse(response.choices[0].message.content);
-    } catch (error) {
-      // Groq might throw a parsing error if JSON is malformed, but JSON mode usually prevents it.
-      if (error instanceof SyntaxError) {
-        logger.error('JSON parse failed for Groq output', { error: error.message });
+      try {
+        return JSON.parse(response.choices[0].message.content);
+      } catch (parseError) {
+        logger.error('JSON parse failed for Groq output', { error: parseError.message });
         throw new GroqApiError('Groq returned invalid JSON.');
       }
-      this._handleApiError(error, 'Failed to generate structured data');
-    }
+    }, 'Failed to generate structured data');
   }
 }
 
