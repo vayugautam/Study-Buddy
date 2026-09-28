@@ -41,7 +41,7 @@ export default function NoteActionModal({ note, isOpen, onClose }) {
       if (quizId) navigate(`/quizzes/${quizId}`)
       else navigate('/quizzes')
     } catch (err) {
-      const msg = err.response?.data?.error?.message || 'Failed to generate quiz. Make sure the note is fully processed and try again.'
+      const msg = err.response?.data?.error?.details?.[0] || err.response?.data?.error?.message || 'Failed to generate quiz. Make sure the note is fully processed and try again.'
       setError(msg)
       setIsGenerating(false)
     }
@@ -58,7 +58,7 @@ export default function NoteActionModal({ note, isOpen, onClose }) {
       if (deckId) navigate(`/flashcards/${deckId}`)
       else navigate('/flashcards')
     } catch (err) {
-      const msg = err.response?.data?.error?.message || 'Failed to generate flashcards. Make sure the note is fully processed and try again.'
+      const msg = err.response?.data?.error?.details?.[0] || err.response?.data?.error?.message || 'Failed to generate flashcards. Make sure the note is fully processed and try again.'
       setError(msg)
       setIsGenerating(false)
     }

@@ -5,6 +5,7 @@
  */
 
 import Note from '../models/Note.model.js';
+import DocumentChunk from '../models/DocumentChunk.model.js';
 import { NotFoundError } from '../utils/AppError.js';
 import logger from '../utils/logger.js';
 
@@ -86,6 +87,12 @@ const noteService = {
     const note = await Note.findOneAndDelete({ _id: noteId, ownerId });
     if (!note) {
       throw new NotFoundError('Note');
+    }
+
+    try {
+      await DocumentChunk.deleteMany({ noteId });
+    } catch (chunkErr) {
+      logger.warn('Failed to delete DocumentChunk records for deleted note', { noteId, error: chunkErr.message });
     }
 
     logger.info('Note deleted', { noteId, ownerId });

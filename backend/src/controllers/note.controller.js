@@ -37,7 +37,7 @@ async function processPdfInBackground(noteId, filePath, ownerId, originalFilenam
     });
 
     const excerpt = text.substring(0, 500).trim();
-    await noteService.updateNoteStatus(noteId, 'ready', { excerpt, pageCount });
+    await noteService.updateNoteStatus(noteId, 'ready', { excerpt, pageCount, extractedText: text });
 
     logger.info('PDF processing completed', { noteId, pageCount, chunkCount: chunks.length });
   } catch (err) {

@@ -3,3 +3,4 @@ node_modules/
 uploads/
 coverage/
 *.log
+backend/node_modules/
