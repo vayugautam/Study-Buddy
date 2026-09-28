@@ -38,3 +38,7 @@ docker-compose.yml
 
 # Documentation / Scratchpads
 Prompts/
+Final/
+Interview/
+PDF/
+*.pdf
