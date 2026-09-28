@@ -19,6 +19,8 @@ class GroqService {
   _isRetryableError(error) {
     const msg = (error?.message || '').toLowerCase();
     const code = error?.error?.error?.code || error?.code || '';
+    // 404 (model_not_found) is NOT retryable — skip it so we don't loop
+    if (error.status === 404 || (error?.error?.error?.code === 'model_not_found')) return false;
     return (
       error.status === 503 ||
       error.status === 429 ||
@@ -53,7 +55,7 @@ class GroqService {
     throw new GroqApiError(`${contextMessage}: ${error?.message || 'Upstream provider error'}`);
   }
 
-  async _executeWithFallback(apiFn, contextMessage, models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']) {
+  async _executeWithFallback(apiFn, contextMessage, models = ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama3-8b-8192']) {
     let lastError;
 
     for (const model of models) {
