@@ -60,20 +60,29 @@ if (config.env === 'development') {
 app.use(globalLimiter);
 
 /* ------------------------------------------------------------------ */
+/*  Frontend Serving (Production) - static assets BEFORE routes      */
+/* ------------------------------------------------------------------ */
+
+if (config.env === 'production') {
+  const frontendDistPath = path.join(__dirname, '../../dist');
+  // Serve static assets (JS, CSS, images) FIRST so they are never
+  // intercepted by the API router or the catch-all below.
+  app.use(express.static(frontendDistPath, { index: false }));
+}
+
+/* ------------------------------------------------------------------ */
 /*  Routes                                                            */
 /* ------------------------------------------------------------------ */
 
 mountRoutes(app);
 
 /* ------------------------------------------------------------------ */
-/*  Frontend Serving (Production) & 404 Handler                       */
+/*  Catch-all: SPA fallback & 404 Handler                             */
 /* ------------------------------------------------------------------ */
 
 if (config.env === 'production') {
   const frontendDistPath = path.join(__dirname, '../../dist');
-  app.use(express.static(frontendDistPath));
-
-  // Catch-all for React Router
+  // All non-API, non-asset requests get the React shell
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
