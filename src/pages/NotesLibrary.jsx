@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotes, useUI } from '../store'
 import Card from '../components/ui/Card'
@@ -9,12 +8,13 @@ import Modal from '../components/ui/Modal'
 import ProgressBar from '../components/ui/ProgressBar'
 import { CardSkeleton } from '../components/ui/Skeleton'
 import EmptyState from '../components/ui/EmptyState'
+import NoteActionModal from '../components/ui/NoteActionModal'
 
 export default function NotesLibrary() {
-  const navigate = useNavigate()
   const { notes, fetchNotes, isLoading, isUploading, uploadProgress, addNote, deleteNote, getFilteredNotes, getUniqueTags, setSearchTerm, searchTerm } = useNotes()
   const { addToast } = useUI()
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
+  const [selectedNote, setSelectedNote] = useState(null)
   
   useEffect(() => {
     fetchNotes()
@@ -114,7 +114,7 @@ export default function NotesLibrary() {
                   hoverable 
                   className="h-full flex flex-col group overflow-hidden cursor-pointer" 
                   padding="none"
-                  onClick={() => navigate('/chat', { state: { noteIds: [note.id] } })}
+                  onClick={() => setSelectedNote(note)}
                 >
                   <div className="h-24 w-full relative" style={{ backgroundColor: note.color || '#8b5cf6' }}>
                     <div className="absolute bottom-3 left-4 bg-white/90 backdrop-blur text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
@@ -181,6 +181,13 @@ export default function NotesLibrary() {
           />
         </div>
       </Modal>
+
+      {/* Note Action Modal */}
+      <NoteActionModal
+        note={selectedNote}
+        isOpen={!!selectedNote}
+        onClose={() => setSelectedNote(null)}
+      />
     </div>
   )
 }
