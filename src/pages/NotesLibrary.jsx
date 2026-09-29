@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotes, useUI } from '../store'
 import Card from '../components/ui/Card'
@@ -10,6 +11,7 @@ import { CardSkeleton } from '../components/ui/Skeleton'
 import EmptyState from '../components/ui/EmptyState'
 
 export default function NotesLibrary() {
+  const navigate = useNavigate()
   const { notes, fetchNotes, isLoading, isUploading, uploadProgress, addNote, deleteNote, getFilteredNotes, getUniqueTags, setSearchTerm, searchTerm } = useNotes()
   const { addToast } = useUI()
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
@@ -108,7 +110,12 @@ export default function NotesLibrary() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card hoverable className="h-full flex flex-col group overflow-hidden" padding="none">
+                <Card 
+                  hoverable 
+                  className="h-full flex flex-col group overflow-hidden cursor-pointer" 
+                  padding="none"
+                  onClick={() => navigate('/chat', { state: { noteIds: [note.id] } })}
+                >
                   <div className="h-24 w-full relative" style={{ backgroundColor: note.color || '#8b5cf6' }}>
                     <div className="absolute bottom-3 left-4 bg-white/90 backdrop-blur text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
                       {(note.sourceType || 'PDF').toUpperCase()}

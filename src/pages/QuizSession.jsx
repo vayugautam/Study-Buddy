@@ -64,6 +64,32 @@ export default function QuizSession() {
             </div>
           </div>
 
+          {results.answers && results.answers.length > 0 && (
+            <div className="mb-8 text-left space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              <h3 className="text-lg font-bold text-neutral-900 sticky top-0 bg-white py-2">Scorecard</h3>
+              <div className="space-y-4">
+                {results.answers.map((ans, idx) => (
+                  <div key={ans.questionId || idx} className={`p-4 rounded-xl border ${ans.isCorrect ? 'border-success/30 bg-success/5' : 'border-error/30 bg-error/5'}`}>
+                    <p className="font-semibold text-neutral-800 mb-2">{idx + 1}. {ans.questionText}</p>
+                    <p className="text-sm text-neutral-600 mb-1">
+                      Your Answer: <span className={`font-medium ${ans.isCorrect ? 'text-emerald-700' : 'text-red-700'}`}>{ans.selectedAnswer || 'None'}</span>
+                    </p>
+                    {!ans.isCorrect && (
+                      <p className="text-sm text-neutral-600 mb-1">
+                        Correct Answer: <span className="font-medium text-emerald-700">{ans.correctAnswer}</span>
+                      </p>
+                    )}
+                    {ans.explanation && (
+                      <div className="text-xs text-neutral-500 mt-3 pt-3 border-t border-black/5 italic">
+                        {ans.explanation}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <Button className="w-full" onClick={() => navigate('/quizzes')}>Return to Quizzes</Button>
             <Button variant="secondary" className="w-full" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
