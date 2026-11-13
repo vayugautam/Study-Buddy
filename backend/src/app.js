@@ -54,10 +54,10 @@ if (config.env === 'development') {
   app.use(morgan('dev'));
 }
 
-// Global rate limiter
-
-
-app.use(globalLimiter);
+// Apply the global rate limit only to API requests. Frontend documents and
+// static assets (including SPA routes such as /dashboard) must not consume
+// the API request quota.
+app.use('/api', globalLimiter);
 
 /* ------------------------------------------------------------------ */
 /*  Frontend Serving (Production) - static assets BEFORE routes      */
