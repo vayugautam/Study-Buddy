@@ -21,9 +21,9 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 
 def _jwt_secret() -> str:
-    secret = os.getenv("JWT_SECRET_KEY")
+    secret = os.getenv("JWT_SECRET") or os.getenv("JWT_SECRET_KEY")
     if not secret or len(secret) < 32:
-        raise RuntimeError("JWT_SECRET_KEY must be configured with at least 32 characters")
+        raise RuntimeError("JWT_SECRET must be configured with at least 32 characters")
     return secret
 
 

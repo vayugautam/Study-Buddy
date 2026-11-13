@@ -7,8 +7,8 @@ from uuid import UUID
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from app.models import Conversation, ConversationDocument, Document, Message
-from app.services.llm_service import generate_answer
+from app.models import Conversation, ConversationDocument, Document, Message, MessageCitation
+from app.services.llm_service import Citation, generate_answer
 from app.services.retrieval_service import retrieve_for_conversation
 
 
@@ -171,6 +171,31 @@ def list_messages(db: Session, conversation_id: UUID) -> list[Message]:
     ).all())
 
 
+def list_message_citations(
+    db: Session,
+    message_ids: list[UUID],
+    user_id: UUID,
+) -> dict[UUID, list[MessageCitation]]:
+    """Load citations only through messages in conversations owned by this user."""
+    if not message_ids:
+        return {}
+    rows = db.scalars(
+        select(MessageCitation)
+        .join(Message, Message.id == MessageCitation.message_id)
+        .join(Conversation, Conversation.id == Message.conversation_id)
+        .where(
+            Message.id.in_(message_ids),
+            Conversation.user_id == user_id,
+            MessageCitation.user_id == user_id,
+        )
+        .order_by(MessageCitation.message_id, MessageCitation.id)
+    ).all()
+    grouped: dict[UUID, list[MessageCitation]] = {}
+    for citation in rows:
+        grouped.setdefault(citation.message_id, []).append(citation)
+    return grouped
+
+
 def _history_limits() -> tuple[int, int]:
     try:
         message_limit = int(os.getenv("CONVERSATION_HISTORY_LIMIT", "12"))
@@ -242,7 +267,7 @@ def create_chat_turn(
     conversation_id: UUID,
     user_id: UUID,
     content: str,
-) -> tuple[Message, Message, list[dict]]:
+) -> tuple[Message, Message, list[dict], list[Citation]]:
     """Generate first, then atomically persist both messages and updated_at."""
     conversation = get_owned_conversation(db, conversation_id, user_id)
     version = conversation.updated_at
@@ -299,6 +324,49 @@ def create_chat_turn(
         )
         locked_conversation.updated_at = assistant_time
         db.add_all([user_message, assistant_message])
+        db.flush()
+
+        citations_by_chunk = {}
+        for citation in answer.citations:
+            citations_by_chunk.setdefault(citation.chunk_id, citation)
+        if citations_by_chunk:
+            chunk_by_id = {str(chunk["chunk_id"]): chunk for chunk in chunks}
+            document_ids = {
+                UUID(str(citation.document_id))
+                for citation in citations_by_chunk.values()
+            }
+            owned_documents = {
+                document.id: document
+                for document in db.scalars(
+                    select(Document).where(
+                        Document.id.in_(document_ids),
+                        Document.user_id == user_id,
+                    )
+                ).all()
+            }
+            citation_rows = []
+            for citation in citations_by_chunk.values():
+                chunk = chunk_by_id.get(citation.chunk_id)
+                document_id = UUID(str(citation.document_id))
+                document = owned_documents.get(document_id)
+                if (
+                    chunk is None
+                    or str(chunk.get("document_id")) != str(document_id)
+                    or document is None
+                    or citation.source != document.filename
+                    or citation.source != chunk.get("source")
+                    or citation.page_number != chunk.get("page_number")
+                ):
+                    raise ValueError("Citation does not match an owned retrieved source")
+                citation_rows.append(MessageCitation(
+                    message_id=assistant_message.id,
+                    document_id=document_id,
+                    user_id=user_id,
+                    chunk_id=citation.chunk_id,
+                    source=document.filename,
+                    page_number=citation.page_number,
+                ))
+            db.add_all(citation_rows)
         db.commit()
         db.refresh(user_message)
         db.refresh(assistant_message)

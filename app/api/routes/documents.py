@@ -142,7 +142,7 @@ def delete_document(
     document = _owned_document(db, document_id, current_user.id)
     # Keep metadata if either external cleanup fails so this operation can be retried.
     try:
-        remove_document_vectors(document.id)
+        remove_document_vectors(document.id, document.user_id)
         get_document_storage().delete(document.storage_path)
     except Exception as exc:
         logger.exception("Document cleanup failed: %s", document.id)

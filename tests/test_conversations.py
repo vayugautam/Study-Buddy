@@ -1,4 +1,5 @@
 import os
+import secrets
 import uuid
 from datetime import datetime, timezone, timedelta
 
@@ -15,12 +16,12 @@ os.environ.setdefault("GROQ_MODEL", "openai/gpt-oss-120b")
 from app.api.dependencies import get_db
 from app.db.base import Base
 from app.main import app
-from app.models import Conversation, ConversationDocument, Document, Message, User
+from app.models import Conversation, ConversationDocument, Document, Message, MessageCitation, User
 
 
 @pytest.fixture
 def conversation_client(monkeypatch):
-    monkeypatch.setenv("JWT_SECRET_KEY", "conversation-tests-secret-at-least-32-chars")
+    monkeypatch.setenv("JWT_SECRET_KEY", secrets.token_urlsafe(48))
     monkeypatch.setenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     testing_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
@@ -156,6 +157,99 @@ def test_messages_persist_in_order_and_update_conversation(conversation_client, 
     with testing_session() as db:
         count = db.scalar(select(func.count()).select_from(Message).where(Message.conversation_id == uuid.UUID(conversation_id)))
         assert count == 4
+
+
+def test_citations_persist_and_are_returned_when_conversation_reopens(conversation_client, monkeypatch):
+    client, testing_session = conversation_client
+    from app.services import conversation_service
+    from app.services.llm_service import Citation, GeneratedAnswer
+
+    token = login_user(client, "citation-owner@example.com")
+    document_id = create_owned_document(testing_session, "citation-owner@example.com", "owned-notes.pdf")
+    created = client.post("/conversations", headers=auth(token), json={
+        "retrieval_scope": "single_document", "document_ids": [str(document_id)]
+    })
+    conversation_id = created.json()["id"]
+    monkeypatch.setattr(conversation_service, "retrieve_for_conversation", lambda *args, **kwargs: [{
+        "chunk_id": "owned-chunk-1",
+        "text": "The verified source text.",
+        "source": "owned-notes.pdf",
+        "document_id": str(document_id),
+        "page_number": 2,
+    }])
+    monkeypatch.setattr(conversation_service, "generate_answer", lambda *args, **kwargs: GeneratedAnswer(
+        answer="A persisted answer.",
+        citations=[Citation(
+            chunk_id="owned-chunk-1",
+            document_id=document_id,
+            source="owned-notes.pdf",
+            page_number=2,
+        )],
+        insufficient_evidence=False,
+    ))
+
+    turn = client.post(
+        f"/conversations/{conversation_id}/messages",
+        headers=auth(token),
+        json={"content": "What does it say?"},
+    )
+    expected = [{
+        "chunk_id": "owned-chunk-1",
+        "document_id": str(document_id),
+        "source": "owned-notes.pdf",
+        "page_number": 2,
+    }]
+    assert turn.status_code == 200
+    assert turn.json()["assistant_message"]["citations"] == expected
+    reopened = client.get(f"/conversations/{conversation_id}", headers=auth(token))
+    assert reopened.status_code == 200
+    assistant = next(message for message in reopened.json()["messages"] if message["role"] == "assistant")
+    assert assistant["citations"] == expected
+
+    with testing_session() as db:
+        assert db.scalar(select(func.count()).select_from(MessageCitation)) == 1
+
+
+def test_citation_for_another_users_document_is_rejected(conversation_client, monkeypatch):
+    client, testing_session = conversation_client
+    from app.services import conversation_service
+    from app.services.llm_service import Citation, GeneratedAnswer
+
+    token = login_user(client, "citation-reader@example.com")
+    login_user(client, "citation-owner@example.com")
+    foreign_document_id = create_owned_document(
+        testing_session, "citation-owner@example.com", "private-source.pdf"
+    )
+    created = client.post("/conversations", headers=auth(token), json={
+        "retrieval_scope": "all_documents", "document_ids": []
+    })
+    conversation_id = created.json()["id"]
+    monkeypatch.setattr(conversation_service, "retrieve_for_conversation", lambda *args, **kwargs: [{
+        "chunk_id": "foreign-chunk",
+        "text": "Private source text.",
+        "source": "private-source.pdf",
+        "document_id": str(foreign_document_id),
+        "page_number": 1,
+    }])
+    monkeypatch.setattr(conversation_service, "generate_answer", lambda *args, **kwargs: GeneratedAnswer(
+        answer="Private answer.",
+        citations=[Citation(
+            chunk_id="foreign-chunk",
+            document_id=foreign_document_id,
+            source="private-source.pdf",
+            page_number=1,
+        )],
+        insufficient_evidence=False,
+    ))
+
+    response = client.post(
+        f"/conversations/{conversation_id}/messages",
+        headers=auth(token),
+        json={"content": "Show that source."},
+    )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Could not generate a conversation reply"
+    assert client.get(f"/conversations/{conversation_id}", headers=auth(token)).json()["messages"] == []
 
 
 def test_failed_assistant_does_not_persist_partial_turn(conversation_client, monkeypatch):

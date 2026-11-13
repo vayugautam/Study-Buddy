@@ -1,5 +1,6 @@
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import logging
 import os
@@ -11,8 +12,10 @@ from app.api.routes.conversations import router as conversations_router
 from app.api.dependencies import get_current_user
 from app.models import User
 from app.api.dependencies import get_db
+from app.schemas import CitationResponse
 from app.services.retrieval_service import retrieve_for_conversation
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 import uuid
 
 EVALUATION_MODE = os.getenv("EVAL_FIXTURE_MODE") == "1"
@@ -34,6 +37,24 @@ app = FastAPI(
     title="Study-Buddy AI",
     description="A PDF-based Retrieval-Augmented Generation API",
     version="1.0.0",
+)
+cors_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173",
+        ),
+    ).split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 app.include_router(auth_router)
 app.include_router(documents_router)
@@ -61,14 +82,7 @@ class AskResponse(BaseModel):
     question: str
     answer: str
     retrieved_chunks: int
-    citations: list[dict]
-    sources: list[SourceResponse]
-
-
-class AnswerResponse(BaseModel):
-    question: str
-    answer: str
-    retrieved_chunks: int
+    citations: list[CitationResponse]
     sources: list[SourceResponse]
 
 
@@ -78,6 +92,17 @@ def home():
         "message": "Study-Buddy AI API is running",
         "environment": "evaluation" if EVALUATION_MODE else "application",
     }
+
+
+@app.get("/health")
+def health(db: Session = Depends(get_db)):
+    """Readiness check for the API and its required PostgreSQL connection."""
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as exc:
+        logger.warning("Health check database query failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Database is not ready") from exc
+    return {"status": "ok"}
 
 
 @app.post("/ask", response_model=AskResponse)
@@ -129,11 +154,14 @@ def ask_question(
             for chunk in chunks
         ]
 
-        return AnswerResponse(
+        return AskResponse(
             question=question,
             answer=result.answer,
             retrieved_chunks=len(chunks),
-            citations=[citation.model_dump() for citation in result.citations],
+            citations=[
+                CitationResponse.model_validate(citation.model_dump())
+                for citation in result.citations
+            ],
             sources=sources,
         )
 

@@ -54,13 +54,13 @@ def ingest_document(db: Session, document: Document) -> Document:
         client = get_qdrant_client()
         ensure_shared_collection(client)
         # Remove stale or partial points before writing deterministic replacements.
-        delete_document_chunks(client, document.id)
+        delete_document_chunks(client, document.id, document.user_id)
         store_chunks(client, records)
 
         document.status = "completed"
         db.commit()
         # Retrieval filters on indexed=True, so partial vectors stay invisible.
-        mark_document_chunks_indexed(client, document.id)
+        mark_document_chunks_indexed(client, document.id, document.user_id)
     except Exception:
         db.rollback()
         failed = db.get(Document, document.id)
@@ -70,7 +70,7 @@ def ingest_document(db: Session, document: Document) -> Document:
             document = failed
         if client is not None:
             try:
-                delete_document_chunks(client, document.id)
+                delete_document_chunks(client, document.id, document.user_id)
             except Exception:
                 logger.exception("Could not clean partial vectors for document %s", document.id)
         logger.exception("Document ingestion failed: %s", document.id)
@@ -80,9 +80,9 @@ def ingest_document(db: Session, document: Document) -> Document:
     return document
 
 
-def remove_document_vectors(document_id: uuid.UUID) -> None:
+def remove_document_vectors(document_id: uuid.UUID, user_id: uuid.UUID) -> None:
     client = get_qdrant_client()
     try:
-        delete_document_chunks(client, document_id)
+        delete_document_chunks(client, document_id, user_id)
     finally:
         client.close()

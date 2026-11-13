@@ -1,5 +1,6 @@
 import io
 import os
+import secrets
 import uuid
 
 import pytest
@@ -22,7 +23,7 @@ from app.models import Document
 
 @pytest.fixture
 def document_client(monkeypatch, tmp_path):
-    monkeypatch.setenv("JWT_SECRET_KEY", "document-tests-secret-with-at-least-32-chars")
+    monkeypatch.setenv("JWT_SECRET_KEY", secrets.token_urlsafe(48))
     monkeypatch.setenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
     monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path / "pdfs"))
     monkeypatch.setenv("MAX_PDF_UPLOAD_BYTES", str(2 * 1024 * 1024))
@@ -103,6 +104,31 @@ def test_oversized_pdf(document_client, monkeypatch):
     assert response.status_code == 413
 
 
+def test_retry_that_still_fails_is_reported_as_failed(document_client, monkeypatch):
+    client, _ = document_client
+    from app.api.routes import documents
+
+    token = user_token(client, "retry@example.com")
+    monkeypatch.setattr(documents, "ingest_document", lambda db, document: document)
+    created = upload(client, token)
+    document_id = created.json()["id"]
+    assert created.json()["status"] == "pending"
+
+    def fail_again(db, document):
+        document.status = "failed"
+        db.commit()
+        return document
+
+    monkeypatch.setattr(documents, "ingest_document", fail_again)
+    retried = client.post(
+        f"/documents/{document_id}/retry",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert retried.status_code == 200
+    assert retried.json()["status"] == "failed"
+    assert retried.json()["status"] != "completed"
+
+
 def test_duplicate_ingestion_retry_uses_stable_point_ids(document_client, monkeypatch, tmp_path):
     _, testing_session = document_client
     from app.services import document_service
@@ -143,9 +169,13 @@ def test_duplicate_ingestion_retry_uses_stable_point_ids(document_client, monkey
         monkeypatch.setattr(document_service, "generate_embedding", lambda text: [0.1, 0.2])
         monkeypatch.setattr(document_service, "get_qdrant_client", lambda: qdrant)
         monkeypatch.setattr(document_service, "ensure_shared_collection", lambda client: None)
-        monkeypatch.setattr(document_service, "delete_document_chunks", lambda client, doc_id: client.points.clear())
+        monkeypatch.setattr(
+            document_service,
+            "delete_document_chunks",
+            lambda client, doc_id, user_id: client.points.clear(),
+        )
         monkeypatch.setattr(document_service, "store_chunks", lambda client, records: client.points.update({r["chunk_id"]: r for r in records}))
-        monkeypatch.setattr(document_service, "mark_document_chunks_indexed", lambda client, doc_id: None)
+        monkeypatch.setattr(document_service, "mark_document_chunks_indexed", lambda client, doc_id, user_id: None)
 
         document_service.ingest_document(db, document)
         first_ids = set(qdrant.points)
@@ -185,16 +215,60 @@ def test_cross_user_access_and_delete(document_client, monkeypatch):
     assert client.delete(f"/documents/{document_id}", headers={"Authorization": f"Bearer {other_token}"}).status_code == 404
 
     deleted_vectors = []
-    monkeypatch.setattr(documents, "remove_document_vectors", lambda document_id: deleted_vectors.append(document_id))
+    monkeypatch.setattr(
+        documents,
+        "remove_document_vectors",
+        lambda document_id, user_id: deleted_vectors.append((document_id, user_id)),
+    )
     file_key = None
     with next(app.dependency_overrides[get_db]()) as db:
         file_key = db.get(Document, uuid.UUID(document_id)).storage_path
     path = LocalFileStorage().resolve(file_key)
     response = client.delete(f"/documents/{document_id}", headers={"Authorization": f"Bearer {owner_token}"})
     assert response.status_code == 204
-    assert deleted_vectors == [uuid.UUID(document_id)]
+    owner_id = uuid.UUID(
+        client.get("/auth/me", headers={"Authorization": f"Bearer {owner_token}"}).json()["id"]
+    )
+    assert deleted_vectors == [(uuid.UUID(document_id), owner_id)]
     assert not path.exists()
     assert client.get(f"/documents/{document_id}", headers={"Authorization": f"Bearer {owner_token}"}).status_code == 404
+
+
+def test_delete_cleanup_failure_returns_error_and_keeps_metadata_and_file(document_client, monkeypatch):
+    client, _ = document_client
+    from app.api.routes import documents
+    from app.services.storage_service import LocalFileStorage
+
+    token = user_token(client, "delete-failure@example.com")
+
+    def complete(db, document):
+        document.status = "completed"
+        db.commit()
+        return document
+
+    monkeypatch.setattr(documents, "ingest_document", complete)
+    created = upload(client, token)
+    document_id = created.json()["id"]
+    with next(app.dependency_overrides[get_db]()) as db:
+        file_key = db.get(Document, uuid.UUID(document_id)).storage_path
+    stored_file = LocalFileStorage().resolve(file_key)
+    assert stored_file.exists()
+
+    def fail_vector_cleanup(*args):
+        raise RuntimeError("test cleanup failure")
+
+    monkeypatch.setattr(documents, "remove_document_vectors", fail_vector_cleanup)
+    response = client.delete(
+        f"/documents/{document_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Document cleanup failed; retry deletion"
+    assert stored_file.exists()
+    assert client.get(
+        f"/documents/{document_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    ).status_code == 200
 
 
 def test_retrieval_is_filtered_to_authenticated_user(monkeypatch):

@@ -14,6 +14,7 @@ from app.schemas import (
     ConversationSummary,
     ConversationTurnResponse,
     ConversationUpdate,
+    CitationResponse,
     MessageCreate,
     MessageResponse,
 )
@@ -26,6 +27,7 @@ from app.services.conversation_service import (
     delete_conversation,
     get_conversation_document_ids,
     get_owned_conversation,
+    list_message_citations,
     list_messages,
     list_user_conversations,
     update_conversation,
@@ -86,7 +88,24 @@ def open_conversation_route(
     except ConversationNotFound as exc:
         raise HTTPException(status_code=404, detail="Conversation not found") from exc
     summary = _summary(db, conversation)
-    messages = [MessageResponse.model_validate(item, from_attributes=True) for item in list_messages(db, conversation.id)]
+    message_rows = list_messages(db, conversation.id)
+    citations = list_message_citations(db, [item.id for item in message_rows], current_user.id)
+    messages = [
+        MessageResponse.model_validate(item, from_attributes=True).model_copy(
+            update={
+                "citations": [
+                    CitationResponse(
+                        chunk_id=citation.chunk_id,
+                        document_id=citation.document_id,
+                        source=citation.source,
+                        page_number=citation.page_number,
+                    )
+                    for citation in citations.get(item.id, [])
+                ]
+            }
+        )
+        for item in message_rows
+    ]
     return ConversationDetail(**summary.model_dump(), messages=messages)
 
 
@@ -155,9 +174,21 @@ def post_message_route(
         logger.exception("Conversation reply generation or persistence failed")
         raise HTTPException(status_code=502, detail="Could not generate a conversation reply") from exc
 
+    citations = [
+        CitationResponse(
+            chunk_id=citation.chunk_id,
+            document_id=citation.document_id,
+            source=citation.source,
+            page_number=citation.page_number,
+        )
+        for citation in citations
+    ]
+    assistant_response = MessageResponse.model_validate(assistant_message, from_attributes=True).model_copy(
+        update={"citations": citations}
+    )
     return ConversationTurnResponse(
         conversation_id=conversation_id,
         user_message=MessageResponse.model_validate(user_message, from_attributes=True),
-        assistant_message=MessageResponse.model_validate(assistant_message, from_attributes=True),
-        citations=[citation.model_dump() for citation in citations],
+        assistant_message=assistant_response,
+        citations=citations,
     )

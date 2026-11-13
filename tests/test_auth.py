@@ -1,5 +1,6 @@
 import uuid
 import os
+import secrets
 
 import jwt
 import pytest
@@ -21,7 +22,7 @@ from app.models import User
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-only-secret-with-at-least-32-chars")
+    monkeypatch.setenv("JWT_SECRET_KEY", secrets.token_urlsafe(48))
     monkeypatch.setenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     testing_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
@@ -86,7 +87,7 @@ def test_invalid_token(client):
 def test_expired_token(client):
     expired = jwt.encode(
         {"sub": str(uuid.uuid4()), "iat": 1, "exp": 2},
-        "test-only-secret-with-at-least-32-chars",
+        os.environ["JWT_SECRET_KEY"],
         algorithm="HS256",
     )
     response = client.get("/auth/me", headers={"Authorization": f"Bearer {expired}"})
@@ -97,3 +98,9 @@ def test_protected_endpoint_without_authentication(client):
     response = client.get("/auth/me")
     assert response.status_code == 401
     assert client.post("/ask", json={"question": "What is in my PDF?"}).status_code == 401
+
+
+def test_health_check_confirms_database_query(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}

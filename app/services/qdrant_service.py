@@ -143,6 +143,7 @@ def store_chunks(
 def mark_document_chunks_indexed(
     client: QdrantClient,
     document_id: uuid.UUID,
+    user_id: uuid.UUID,
 ) -> None:
     """Expose a document's vectors to retrieval only after a complete upsert."""
     client.set_payload(
@@ -154,7 +155,11 @@ def mark_document_chunks_indexed(
                     models.FieldCondition(
                         key="document_id",
                         match=models.MatchValue(value=str(document_id)),
-                    )
+                    ),
+                    models.FieldCondition(
+                        key="user_id",
+                        match=models.MatchValue(value=str(user_id)),
+                    ),
                 ]
             )
         ),
@@ -162,8 +167,12 @@ def mark_document_chunks_indexed(
     )
 
 
-def delete_document_chunks(client: QdrantClient, document_id: uuid.UUID) -> None:
-    """Remove every point owned by one document from the shared collection."""
+def delete_document_chunks(
+    client: QdrantClient,
+    document_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> None:
+    """Remove points for one user's document from the shared collection."""
     if not client.collection_exists(COLLECTION_NAME):
         return
     client.delete(
@@ -174,7 +183,11 @@ def delete_document_chunks(client: QdrantClient, document_id: uuid.UUID) -> None
                     models.FieldCondition(
                         key="document_id",
                         match=models.MatchValue(value=str(document_id)),
-                    )
+                    ),
+                    models.FieldCondition(
+                        key="user_id",
+                        match=models.MatchValue(value=str(user_id)),
+                    ),
                 ]
             )
         ),

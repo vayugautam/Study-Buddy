@@ -181,3 +181,32 @@ class Message(Base):
             name="ck_message_role",
         ),
     )
+
+
+class MessageCitation(Base):
+    """A validated source citation attached to one persisted assistant message."""
+
+    __tablename__ = "message_citations"
+    __table_args__ = (
+        UniqueConstraint("message_id", "chunk_id", name="uq_message_citation_chunk"),
+        ForeignKeyConstraint(
+            ["document_id", "user_id"],
+            ["documents.id", "documents.user_id"],
+            name="fk_message_citation_document_user",
+            ondelete="CASCADE",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=new_id
+    )
+    message_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("messages.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    document_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    chunk_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    source: Mapped[str] = mapped_column(String(255), nullable=False)
+    page_number: Mapped[int | None] = mapped_column(nullable=True)

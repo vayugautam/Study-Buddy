@@ -1,7 +1,12 @@
 .env
 __pycache__/
 .venv
+node_modules/
+dist/
+.vite/
 data/uploads/
+# Local study material must not be added to the public repository.
+data/*.pdf
 data/evaluation.sqlite3
 data/evaluation_uploads/
 tests/evaluation/fixture-state.json

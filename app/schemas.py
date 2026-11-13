@@ -85,6 +85,13 @@ class ConversationSummary(BaseModel):
     updated_at: datetime
 
 
+class CitationResponse(BaseModel):
+    chunk_id: str
+    document_id: UUID
+    source: str
+    page_number: int | None = None
+
+
 class MessageCreate(BaseModel):
     content: str = Field(min_length=1, max_length=10000)
 
@@ -101,6 +108,7 @@ class MessageResponse(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
     created_at: datetime
+    citations: list[CitationResponse] = Field(default_factory=list)
 
 
 class ConversationDetail(ConversationSummary):
@@ -112,13 +120,6 @@ class ConversationTurnResponse(BaseModel):
     user_message: MessageResponse
     assistant_message: MessageResponse
     citations: list["CitationResponse"]
-
-
-class CitationResponse(BaseModel):
-    chunk_id: str
-    document_id: UUID
-    source: str
-    page_number: int | None = None
 
 
 ConversationTurnResponse.model_rebuild()
