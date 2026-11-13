@@ -20,12 +20,10 @@ export default useStore
 // Named selectors for convenient usage
 export const useAuth = () => useStore((s) => ({
   user: s.user,
+  user: s.user,
   isAuthenticated: s.isAuthenticated,
   isLoading: s.isAuthLoading,
   error: s.authError,
-  login: s.login,
-  signup: s.signup,
-  logout: s.logout,
   loadSession: s.loadSession,
   updateProfile: s.updateProfile,
   changePassword: s.changePassword,
