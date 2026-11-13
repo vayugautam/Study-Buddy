@@ -1,0 +1,111 @@
+# Engineering Completion Report: Multi-User RAG Ingestion
+
+This report covers the shared-collection ingestion upgrade. It distinguishes code changes, automated test results, and remaining work. I have not started another phase.
+
+## 1. Files created
+
+**None** for this phase. The changes were made in existing files.
+
+## 2. Files modified
+
+- [embedding_service.py](/E:/AI%20Study%20Buddy/app/services/embedding_service.py) — reads the Gemini model and dimension settings from environment variables and validates the returned vector size.
+- [pdf_service.py](/E:/AI%20Study%20Buddy/app/services/pdf_service.py) — returns extracted text page by page.
+- [chunk_service.py](/E:/AI%20Study%20Buddy/app/services/chunk_service.py) — chunks page text while preserving page numbers.
+- [qdrant_service.py](/E:/AI%20Study%20Buddy/app/services/qdrant_service.py) — creates or validates the shared collection, ensures payload indexes, validates stored chunks, and supports publishing or deleting a document’s vectors.
+- [document_service.py](/E:/AI%20Study%20Buddy/app/services/document_service.py) — performs page-aware ingestion, updates PostgreSQL status, and handles retries and partial failures.
+- [retrieval_service.py](/E:/AI%20Study%20Buddy/app/services/retrieval_service.py) — filters API retrieval by user ID and indexed status.
+- [ingest.py](/E:/AI%20Study%20Buddy/app/ingest.py) — retries ingestion for a database document instead of recreating the shared collection.
+- [test_documents.py](/E:/AI%20Study%20Buddy/tests/test_documents.py) — adds coverage for Qdrant metadata, stable retry IDs, page metadata, user filtering, and deletion.
+- [.env.example](/E:/AI%20Study%20Buddy/.env.example) and the local `.env` — include `GEMINI_EMBEDDING_MODEL` and `GEMINI_EMBEDDING_DIMENSIONS`.
+
+## 3. Features implemented
+
+**Implemented:**
+
+- One shared Qdrant collection using 3072-dimensional Gemini embeddings and cosine distance.
+- Collection dimension and distance validation. Existing collections are not deleted or recreated.
+- Qdrant payload indexes for `user_id`, `document_id`, `indexed`, and `chunk_index`.
+- Per-chunk payloads containing user ID, document ID, chunk ID, source filename, page number, chunk index, and text.
+- Stable UUIDv5 chunk point IDs, based on document ID and chunk order.
+- Retry logic that replaces a document’s prior vectors instead of accumulating duplicate or stale chunks.
+- An `indexed` marker: vectors are written as unindexed and become searchable only after the full upsert and database completion update.
+- PostgreSQL document lifecycle updates through the existing status column.
+- Authenticated `/ask` retrieval filtered to the caller’s user ID.
+
+The existing document lifecycle and authenticated ownership routes were already present from the preceding document-management work; this phase updated how those documents are ingested into Qdrant.
+
+## 4. Tests executed and actual results
+
+**Automated tests executed:**
+
+```powershell
+.venv\Scripts\python.exe -m pytest tests\test_auth.py tests\test_documents.py -q
+```
+
+Result: **14 passed**, with **1 warning**, in 5.72 seconds. The warning is a Starlette deprecation notice about using `httpx` with its test client.
+
+**Static check executed:**
+
+```powershell
+.venv\Scripts\python.exe -m compileall -q app tests
+```
+
+Result: passed with no errors.
+
+The automated tests use local SQLite and mocked Gemini/Qdrant operations. **Live Gemini and Qdrant integration was not tested.**
+
+## 5. Important architectural decisions
+
+- **One shared collection:** This avoids per-user collection management and keeps collection configuration and operations centralized. Payload filters and indexes provide tenant scoping. Separate collections per user would offer more physical separation, but create more operational overhead and collection proliferation.
+- **Page-aware chunks:** Chunking each page separately preserves citation location. This avoids losing page attribution when extracted text is flattened.
+- **Stable IDs and replacement on retry:** Deterministic point IDs make repeated ingestion address the same points. Deleting the document’s previous points before replacement also removes stale trailing chunks if a later run produces fewer chunks.
+- **Delayed indexing:** New points are not searchable until ingestion has completed. This keeps partially written vectors out of normal retrieval.
+- **Non-destructive collection setup:** The previous recreation path could remove or block access to shared data. Collection setup now validates existing configuration and adds missing indexes without deleting points.
+
+## 6. Security considerations
+
+- The API passes the verified JWT user ID into retrieval; the frontend cannot choose the search owner.
+- New vector payloads include `user_id` and `document_id`; API retrieval filters by the authenticated user and `indexed=true`.
+- Document ownership checks remain in place for document management operations.
+- Qdrant deletion filters by document ID, which is generated as a UUID.
+- Existing vectors that lack the new owner and indexed metadata are excluded from tenant-filtered retrieval.
+
+## 7. Known limitations
+
+- Ingestion is synchronous, so large PDFs may hold an HTTP request open. A background worker would improve reliability and responsiveness at scale.
+- The storage implementation is local disk; the storage interface exists, but no object-storage backend is implemented.
+- Scanned PDFs without extractable text fail ingestion; OCR is not implemented.
+- `retrieve_chunks` still permits calls without a `user_id` for legacy internal callers. The HTTP `/ask` route supplies one, but making the service parameter mandatory remains a useful hardening step.
+- Legacy Qdrant points without owner/indexed metadata need reingestion before they can be used by the secured search path.
+- Search currently covers all indexed documents belonging to the user. Conversation-specific document scopes are not implemented in this phase.
+
+## 8. Unfinished work
+
+- Make user ID mandatory for all retrieval-service callers, then update legacy scripts that call retrieval directly.
+- Reingest legacy points through the authenticated document pipeline.
+- Add an asynchronous ingestion worker if upload volume or processing time requires it.
+- Implement object storage if deployment requires files to be shared across application instances.
+- Add conversation-level document filters in the conversation/RAG phase.
+
+These items are recorded as remaining work; I have not proceeded with them.
+
+## 9. Database migration changes
+
+**None.** The existing `documents.status` field supports the lifecycle states, and the existing schema already stores document ownership and storage references. The new chunk metadata is stored in Qdrant, not PostgreSQL.
+
+## 10. Interview questions and answers
+
+**1. Why use one shared Qdrant collection?**  
+It reduces collection-management overhead as users grow. Tenant separation comes from payload filters on `user_id` and `document_id`, supported by payload indexes. Per-user collections would add stronger physical separation but increase operational complexity.
+
+**2. How are duplicate vectors prevented on retry?**  
+Each chunk gets a deterministic UUIDv5 point ID derived from its document ID and chunk order. Before reingestion, the service deletes that document’s old points, so retries replace the previous set.
+
+**3. How are partial ingestion failures handled?**  
+New vectors are written with `indexed=false`. Retrieval ignores them until all writes succeed and the database status is completed. On failure, the service marks the document failed and attempts to delete its vectors.
+
+**4. Why retain page numbers in the chunking pipeline?**  
+Page-aware extraction and chunking preserve where evidence came from, which supports page citations and makes answers easier to verify.
+
+**5. Why validate the existing collection instead of recreating it?**  
+Recreation risks deleting other users’ vectors. Validation preserves stored data while detecting incompatible vector dimensions or distance settings and ensuring required payload indexes exist.

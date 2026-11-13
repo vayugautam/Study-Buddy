@@ -1,0 +1,82 @@
+# Engineering Completion Report: Conversation-Aware RAG
+
+This report covers the recent-message context phase. **Implemented** means present in code; **tested** means exercised by the executed suite; **planned** means not implemented. I’ll stop here for your review.
+
+## 1. Files created
+
+**None** in this phase.
+
+## 2. Files modified
+
+- [conversation_service.py](/E:/AI%20Study%20Buddy/app/services/conversation_service.py) — loads a bounded recent message window for the current conversation.
+- [.env.example](/E:/AI%20Study%20Buddy/.env.example) — documents the history limit and character budget.
+- [test_conversations.py](/E:/AI%20Study%20Buddy/tests/test_conversations.py) — adds tests for follow-up context, history limits, and conversation separation.
+
+## 3. Features implemented
+
+- Recent messages are loaded from PostgreSQL for the authenticated user’s owned conversation.
+- `CONVERSATION_HISTORY_LIMIT` defaults to 12 messages.
+- `CONVERSATION_HISTORY_MAX_CHARS` defaults to 12,000 characters. When the budget is exceeded, the oldest content is trimmed first.
+- The persisted original messages remain unchanged.
+- The original follow-up question is still used for retrieval. The conversation’s retrieval scope remains independently resolved by the scoped retrieval service.
+- Recent history is passed to answer generation to help interpret follow-ups.
+
+## 4. Tests executed and actual results
+
+Executed:
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+**Result:** 21 passed, 1 non-failing Starlette test-client deprecation warning.
+
+The added tests verify that follow-up history reaches answer generation, the configured recent-message limit is applied, and messages from another conversation are excluded.
+
+## 5. Important architectural decisions
+
+- **Simple recent-message window:** A bounded window addresses short follow-ups without adding a memory framework or summary storage.
+- **Character budget in addition to message count:** Message length varies, so the second limit caps the approximate context size. Older content is trimmed before newer content.
+- **History and retrieval stay separate:** History helps interpret the question; the current question and PostgreSQL retrieval scope determine which document chunks can supply evidence.
+
+## 6. Security considerations
+
+- Conversation lookup is ownership-scoped before messages are loaded.
+- History is queried using the current conversation ID only.
+- History is not used to add document IDs or change the Qdrant retrieval filter.
+- The configured limits bound how much conversation text is sent to the LLM.
+
+## 7. Known limitations
+
+- Character count is a rough proxy for model tokens; it does not guarantee a precise token budget.
+- Trimming can remove the beginning of the oldest retained message when it exceeds the remaining character budget.
+- No summarization is performed, so long-term context outside the recent window is unavailable to the model even though it remains persisted.
+- Tests use SQLite and mocked model services; no live provider behavior was tested.
+
+## 8. Unfinished work
+
+**Planned, not implemented:**
+
+- Token-based budgeting if a precise model context limit becomes necessary.
+- History summarization if evaluation shows that a recent-message window is insufficient for long conversations.
+
+## 9. Database migration changes
+
+**None.** The implementation reads existing PostgreSQL messages and does not alter stored history.
+
+## 10. Interview questions and answers
+
+**1. What is the difference between chat history and conversational context?**  
+Chat history is the full persisted record. Conversational context is the bounded recent subset sent to the model for the current reply.
+
+**2. How does RAG retrieval differ from conversational context?**  
+RAG retrieval selects evidence chunks from authorized documents. Conversation context helps interpret references such as “explain that”; it does not serve as document evidence.
+
+**3. Why start with a recent-message window?**  
+It handles common follow-ups with little extra complexity and caps how much history enters the prompt. More complex memory can be considered if evaluation shows a need.
+
+**4. Why have both a message limit and a character limit?**  
+The message limit bounds the number of turns, while the character limit bounds prompt size when individual messages are unusually long.
+
+**5. Can conversation history broaden document access?**  
+No. Retrieval scope is resolved separately from the owned conversation and its document associations. History is passed only to answer generation, not used to select Qdrant documents.

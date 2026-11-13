@@ -1,0 +1,77 @@
+%PDF-1.4
+%StudyBuddyEvaluation
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 3636 >>
+stream
+BT
+/F1 9 Tf
+40 750 Td
+12 TL
+(Database Engineering: Keys, Relationships, Indexes, and Transactions) Tj T*
+() Tj T*
+(A relational database stores related facts in tables made of rows and columns. A primary key) Tj T*
+(uniquely identifies each row in its table and must not be null. A foreign key references a) Tj T*
+(candidate key, commonly a primary key, in another table. The database can enforce) Tj T*
+(referential integrity so that a reference cannot point to a row that does not exist. A) Tj T*
+(foreign key does not have to use the same column name as the referenced key, but its values) Tj T*
+(must be compatible.) Tj T*
+(A one-to-many relationship means one row on the parent side can be related to many rows on) Tj T*
+(the child side, while each child row refers to one parent. The foreign key is normally) Tj T*
+(stored on the many side. For example, one conversation can have many messages, and each) Tj T*
+(message can store the conversation's identifier. A many-to-many relationship allows rows on) Tj T*
+(either side to relate to multiple rows on the other side. It is represented with a junction) Tj T*
+(table containing foreign keys to both participating tables; a uniqueness constraint on the) Tj T*
+(pair can prevent duplicate associations.) Tj T*
+(An index is an auxiliary data structure that can help a database find rows without scanning) Tj T*
+(every row in a table. An index can improve reads and joins when its columns match useful) Tj T*
+(filters or ordering, but it consumes storage and must be maintained when rows are inserted,) Tj T*
+(updated, or deleted. Indexes do not guarantee a faster query: the optimizer chooses a plan) Tj T*
+(based on the query and available statistics. Frequently filtered ownership identifiers are) Tj T*
+(common index candidates in a multi-user application.) Tj T*
+(A database transaction groups operations into a unit that is committed or rolled back. ACID) Tj T*
+(describes four transaction properties. Atomicity means all operations in the transaction) Tj T*
+(take effect or none do. Consistency means a committed transaction preserves declared rules) Tj T*
+(and constraints. Isolation controls how concurrent transactions observe one another's work.) Tj T*
+(Durability means committed changes survive a failure according to the database's guarantees.) Tj T*
+(ACID does not automatically include work in an external service such as a vector database;) Tj T*
+(applications need retries, idempotency, or compensating cleanup for cross-system workflows.) Tj T*
+(SQL joins combine rows from tables using a related condition. An INNER JOIN returns rows) Tj T*
+(that satisfy the join condition on both sides. A LEFT JOIN keeps every row from the left) Tj T*
+(input and adds matching right-side values, using nulls when no right row matches. A join can) Tj T*
+(combine messages with their conversation or a junction table with its documents. The join) Tj T*
+(condition should use the intended key relationship; omitting it can create a Cartesian) Tj T*
+(product with many unintended row combinations.) Tj T*
+(Schema constraints and application authorization solve different problems. A foreign key can) Tj T*
+(ensure that an association references existing rows, while an application query must still) Tj T*
+(filter by the authenticated user's ownership. For example, a junction table may carry a user) Tj T*
+(identifier and use composite foreign keys to ensure its conversation and document belong to) Tj T*
+(that same user. The API should also validate ownership before creating the association, and) Tj T*
+(retrieval should apply the authenticated user filter every time.) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000031 00000 n 
+0000000080 00000 n 
+0000000137 00000 n 
+0000000207 00000 n 
+0000000333 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4021
+%%EOF

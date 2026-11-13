@@ -1,0 +1,87 @@
+# Engineering Completion Report: Scoped RAG Retrieval
+
+This report covers the multi-user, multi-document retrieval phase. **Implemented** means present in code; **tested** means exercised by the executed suite; **planned** means unfinished. I’ll stop here for your review.
+
+## 1. Files created
+
+**None** in this phase. The retrieval changes were made in existing files.
+
+## 2. Files modified
+
+- [retrieval_service.py](/E:/AI%20Study%20Buddy/app/services/retrieval_service.py) — centralizes conversation authorization, scope resolution, and filtered Qdrant queries.
+- [conversation_service.py](/E:/AI%20Study%20Buddy/app/services/conversation_service.py) — routes conversation turns through the centralized retrieval service.
+- [main.py](/E:/AI%20Study%20Buddy/app/main.py) — routes `/ask` through scoped retrieval using a conversation ID and authenticated user.
+- [test_documents.py](/E:/AI%20Study%20Buddy/tests/test_documents.py) — updates the Qdrant-filter assertion for the mandatory user and document filters.
+- [test_conversations.py](/E:/AI%20Study%20Buddy/tests/test_conversations.py) — mocks the centralized scoped retrieval service.
+
+## 3. Features implemented
+
+- The verified JWT supplies the user identity; clients do not supply the identity used for retrieval.
+- Retrieval loads the conversation from PostgreSQL and verifies ownership before embedding or Qdrant access.
+- `single_document` and `selected_documents` use the conversation’s junction-table associations and confirm document ownership.
+- `all_documents` resolves the authenticated user’s completed documents.
+- Every Qdrant search requires `user_id`, `document_id`, and `indexed=true` filters.
+- Retrieval returns chunk text, document identity, page number, source, and similarity score.
+- Empty document scopes return no chunks, allowing the existing answer flow to respond with insufficient context.
+- The top-5 default and configurable similarity threshold are preserved.
+
+## 4. Tests executed and actual results
+
+Executed:
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+**Result:** 19 passed, 1 non-failing Starlette test-client deprecation warning.
+
+The suite exercises ownership and selected-document validation in the conversation APIs, and verifies that the low-level Qdrant query receives user and document filters. It does not yet test each retrieval scope independently against a mocked Qdrant query; the final implementation was therefore not fully covered for every scope-specific query filter.
+
+## 5. Important architectural decisions
+
+- **Centralized retrieval:** Conversation APIs and `/ask` use the same service, which resolves access and scope before querying Qdrant. This reduces the chance that one RAG endpoint omits a security filter.
+- **PostgreSQL defines scope:** The conversation’s scope and `conversation_documents` links determine allowed documents. For `all_documents`, the service queries completed documents owned by that user.
+- **Shared collection with mandatory filters:** A shared collection avoids per-user collection proliferation, while payload filters enforce tenant and document boundaries. This requires every retrieval path to provide valid ownership and scope filters.
+
+## 6. Security considerations
+
+- Conversation ownership is checked before embedding or contacting Qdrant. Unknown or unowned conversations fail before vector search.
+- Document IDs are resolved from PostgreSQL associations, not trusted from the retrieval request.
+- Qdrant filters require both the authenticated user ID and the allowed document IDs; the service does not intentionally fall back to an unfiltered search.
+- Only indexed vectors are searchable, excluding incomplete ingestion points.
+- The lower-level Qdrant query function is internal, but should remain inaccessible to routes that have not resolved a conversation scope.
+
+## 7. Known limitations
+
+- Scope-specific Qdrant query behavior lacks separate automated tests for all three scopes.
+- Live PostgreSQL, Gemini, Groq, and Qdrant services were not exercised by this test run; the suite uses local or mocked components.
+- `/ask` now requires a `conversation_id`; clients using the previous question-only request shape must include an owned conversation.
+- Legacy vector points without the new `user_id`, `document_id`, and `indexed` payload fields will not be returned by scoped queries.
+
+## 8. Unfinished work
+
+**Planned, not implemented:**
+
+- Add explicit retrieval-service tests for `single_document`, `selected_documents`, `all_documents`, empty results, insufficient evidence, and cross-user Qdrant isolation.
+- Reingest legacy vector points so they carry the required owner and document metadata.
+
+## 9. Database migration changes
+
+**None.** Retrieval reads the existing conversations, documents, and `conversation_documents` tables.
+
+## 10. Interview questions and answers
+
+**1. How does the service decide which documents are searchable?**  
+It loads the owned conversation from PostgreSQL, reads its scope, then resolves document IDs from the junction table or the authenticated user’s completed documents.
+
+**2. How is tenant isolation enforced in a shared collection?**  
+Each Qdrant search requires both `user_id` from the verified JWT and the allowed `document_id` values resolved from PostgreSQL.
+
+**3. Why resolve document IDs from PostgreSQL instead of accepting them from the client?**  
+The database contains the authoritative ownership links. Client-supplied IDs alone could let a user attempt to include another user’s documents.
+
+**4. What happens if a conversation is not owned by the caller?**  
+The service returns a not-found error before generating an embedding or making a Qdrant request, avoiding data disclosure through retrieval.
+
+**5. Why use a shared collection instead of one collection per user?**  
+A shared collection is simpler to operate as the user count grows. Payload indexes and mandatory filters support efficient tenant scoping, with the trade-off that every retrieval path must enforce those filters correctly.

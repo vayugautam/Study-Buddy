@@ -1,6 +1,0 @@
-node_modules/
-.env
-uploads/
-coverage/
-*.log
-backend/node_modules/

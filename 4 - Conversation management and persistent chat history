@@ -1,0 +1,91 @@
+# Engineering Completion Report: Persistent Conversations
+
+This report covers the conversation-management phase only. **Implemented** means present in the code; **tested** means covered by the executed automated suite; **planned** means unfinished and not implemented. I will stop here for your review.
+
+## 1. Files created
+
+- [conversation_service.py](/E:/AI%20Study%20Buddy/app/services/conversation_service.py) — conversation operations, document-scope resolution, and transactional chat turns.
+- [conversations.py](/E:/AI%20Study%20Buddy/app/api/routes/conversations.py) — authenticated conversation and message endpoints.
+- [test_conversations.py](/E:/AI%20Study%20Buddy/tests/test_conversations.py) — conversation-specific automated tests.
+
+## 2. Files modified
+
+- [schemas.py](/E:/AI%20Study%20Buddy/app/schemas.py) — conversation, message, update, and response schemas.
+- [main.py](/E:/AI%20Study%20Buddy/app/main.py) — registers the conversation router.
+- [retrieval_service.py](/E:/AI%20Study%20Buddy/app/services/retrieval_service.py) — supports filtering by selected document IDs.
+- [llm_service.py](/E:/AI%20Study%20Buddy/app/services/llm_service.py) — accepts persisted conversation history when generating a reply.
+
+## 3. Features implemented
+
+- Authenticated users can create, list, open, rename, and delete their own conversations.
+- Conversations support `single_document`, `selected_documents`, and `all_documents` scopes.
+- Selected document IDs are validated against the authenticated user’s ownership. Scope or document selections can be changed through the update endpoint.
+- User and assistant messages are persisted in PostgreSQL and returned when a conversation is reopened.
+- Messages are ordered chronologically. New user and assistant timestamps are explicitly ordered, and `updated_at` advances when a turn is saved.
+- Previous messages are passed to the answer generator as conversation context.
+- A turn’s user message, assistant message, and conversation timestamp are committed together, after generation succeeds.
+
+## 4. Tests executed and actual results
+
+**Executed:**
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+**Result:** 19 passed, 1 non-failing Starlette test-client deprecation warning.
+
+The conversation tests cover ownership checks, selected-document ownership and scope updates, persistence and ordering across multiple messages, timestamp updates, failed assistant generation without partial message persistence, and deletion of conversation messages and document links.
+
+The suite uses SQLite and mocked model/retrieval behavior. It does **not** test live PostgreSQL concurrency or live Groq, Gemini, or Qdrant calls.
+
+## 5. Important architectural decisions
+
+- **Separate conversation and message tables:** A conversation holds stable metadata such as title, owner, scope, and timestamps. Messages are independently stored rows, allowing history to grow without duplicating conversation metadata and making it straightforward to list a conversation or load its messages.
+- **Junction table for documents:** `conversation_documents` represents the many-to-many relationship: a conversation can use multiple documents, and a document can be attached to multiple conversations. The table also carries `user_id`, with existing composite foreign keys enforcing matching ownership.
+- **Transaction after generation:** Model calls happen before the write transaction. Once a reply is available, both messages and the timestamp are committed together. This avoids holding database locks during model calls and prevents a failed answer from leaving only the user message.
+- **Optimistic concurrency:** The service records the conversation version before generation and checks it again under a row lock before committing. If another turn changed the conversation meanwhile, it returns `409` instead of saving a reply based on stale history.
+
+## 6. Security considerations
+
+- Conversation identity is derived from the verified JWT; the API does not accept a frontend `user_id` as proof of identity.
+- Conversation queries and mutations are scoped by both conversation ID and authenticated user ID.
+- Selected documents are checked against the same user before links are created or changed. Unknown or unowned IDs return a non-revealing 404.
+- Retrieval uses the authenticated user ID and the conversation’s allowed document IDs. `all_documents` resolves only that user’s completed documents.
+- Assistant generation happens before messages are committed, preventing partial history if the model call fails.
+
+## 7. Known limitations
+
+- Reply generation is synchronous; slow retrieval or model calls keep the HTTP request open.
+- Concurrent turns that race return `409`; the client must retry.
+- Citations are returned with the generated turn, but are not stored as structured data alongside the assistant message.
+- Automated tests use SQLite, which does not reproduce PostgreSQL row-lock behavior exactly.
+
+## 8. Unfinished work
+
+**Planned, not implemented in this phase:**
+
+- Background or streaming reply generation.
+- Structured persistence of citations per assistant message.
+- PostgreSQL integration tests for row-lock and concurrent-turn behavior.
+
+## 9. Database migration changes
+
+**None.** The existing schema already provides `conversations`, `messages`, and `conversation_documents`, including ownership constraints and cascading relationships.
+
+## 10. Interview questions and answers
+
+**1. Why keep messages in a separate table from conversations?**  
+Conversation metadata changes infrequently, while message history grows with each turn. Separate rows keep the conversation record small and make history retrieval, ordering, and deletion explicit.
+
+**2. Why use a junction table for conversations and documents?**  
+The relationship is many-to-many: one conversation may use several documents, and users may select a document in several conversations. The junction table stores those links and can enforce that both records belong to the same user.
+
+**3. How does the system prevent one user from opening another user’s conversation?**  
+Every conversation lookup includes both its ID and the authenticated user’s ID. The user ID comes from the verified JWT, not from the request body.
+
+**4. What happens if assistant generation fails?**  
+No messages have been written yet. The user and assistant messages are added in one database transaction only after generation succeeds, so failure leaves the conversation history unchanged.
+
+**5. How are retrieval scopes enforced?**  
+Single and selected scopes use the document IDs stored in `conversation_documents`; all-documents scope resolves the authenticated user’s completed documents. Retrieval receives both the user ID and the permitted document IDs.

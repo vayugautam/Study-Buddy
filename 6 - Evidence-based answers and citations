@@ -1,0 +1,101 @@
+# Engineering Completion Report: Cited RAG Answers
+
+This report covers the structured answer and citation phase. **Implemented** means present in code; **tested** means exercised by the executed automated suite; **planned** means unfinished. I’ll stop here for your review.
+
+## 1. Files created
+
+**None** in this phase.
+
+## 2. Files modified
+
+- [llm_service.py](/E:/AI%20Study%20Buddy/app/services/llm_service.py) — structured answer and verification outputs, citation validation, and insufficient-evidence handling.
+- [schemas.py](/E:/AI%20Study%20Buddy/app/schemas.py) — structured citation response model.
+- [conversation_service.py](/E:/AI%20Study%20Buddy/app/services/conversation_service.py) — stores the structured answer text and returns citations.
+- [conversations.py](/E:/AI%20Study%20Buddy/app/api/routes/conversations.py) — returns citations separately from the assistant message.
+- [main.py](/E:/AI%20Study%20Buddy/app/main.py) — returns structured citations from `/ask`.
+- [test_conversations.py](/E:/AI%20Study%20Buddy/tests/test_conversations.py) — updates mocked assistant results to use the structured answer model.
+
+## 3. Features implemented
+
+- **Implemented:** The answer-generation prompt uses retrieved chunks as evidence, prohibits unsupported claims, and requests JSON output containing answer text, citations, and an insufficient-evidence flag.
+- **Implemented:** Citations identify chunk ID, document ID, source filename, and page number.
+- **Implemented:** Backend validation checks that each cited chunk was retrieved and that its document, source, and page metadata match that chunk.
+- **Implemented:** The second LLM call remains in place and returns structured `supported` and `reason` fields.
+- **Implemented:** Unsupported answers return the insufficient-evidence answer with no citations.
+- **Implemented:** `/ask` and conversation-message responses separate answer text from citation metadata.
+
+Retrieval similarity is used to rank relevant evidence; it is not treated as proof that an answer is correct.
+
+## 4. Tests executed and actual results
+
+Executed:
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+**Result:** 19 passed, 1 non-failing Starlette test-client deprecation warning.
+
+Also executed:
+
+```powershell
+.venv\Scripts\python.exe -m compileall -q app tests
+```
+
+**Result:** Passed.
+
+**Coverage limitation:** The 19 passing tests do not include dedicated citation-validation tests. The citation behaviors listed above should not be considered tested based on this run.
+
+## 5. Important architectural decisions
+
+- **Structured JSON response with backend validation:** Pydantic models define the expected answer, citation, and verification fields. The backend validates the provider output and checks citations against the retrieved chunk set instead of trusting the model’s references.
+- **Separate text and metadata:** Answer text remains the assistant message; citation metadata is returned as a separate response field. This keeps content and provenance distinct.
+- **Retained second verification call:** The existing factual-support check remains, but returns structured data. If it rejects the answer, the API returns the safe fallback and no citations.
+
+## 6. Security considerations
+
+- Citation references must match chunks supplied to the generation call. Document IDs must match the cited chunk’s document.
+- The check is relative to the authorized retrieved context; retrieval ownership and scope filtering remain prerequisites.
+- Malformed model responses raise an error rather than being treated as verified answers.
+- Similarity scores are not considered evidence of factual correctness.
+
+## 7. Known limitations
+
+- Citation and malformed-output behavior has not been tested with a dedicated automated suite.
+- The suite uses mocked services and does not verify live Groq structured-output behavior.
+- The verifier checks answer support against the supplied document context. It does not independently establish whether each individual citation entails the specific claim attributed to it.
+
+## 8. Unfinished work
+
+**Planned, not implemented:**
+
+Add tests for:
+
+- Valid citation references.
+- Unknown or nonexistent chunk IDs.
+- Cross-document citation attempts.
+- Unsupported answers.
+- Missing retrieval context.
+- Malformed draft and verifier responses.
+- Provider failures and safe API error responses.
+
+## 9. Database migration changes
+
+**None.** Citations are returned as response metadata; this phase did not add a database field or table to persist them.
+
+## 10. Interview questions and answers
+
+**1. What is the difference between retrieval relevance and answer correctness?**  
+Retrieval relevance estimates how related a chunk is to the question. Answer correctness asks whether the claims are supported by evidence. A high similarity score alone does not prove an answer.
+
+**2. What does citation correctness mean here?**  
+A citation is valid only if its chunk was part of the retrieved evidence and its document and source metadata match that chunk. This validates the reference, though it does not by itself prove that every claim is entailed by that source.
+
+**3. Why use a structured response schema instead of free-form text?**  
+A schema lets the backend validate required fields and types, reject malformed output, and return answer text and citation metadata separately.
+
+**4. Why keep the second verification call?**  
+The generation call proposes an answer; the verifier separately judges whether that answer is supported by the supplied context. It adds a second evidence check, though it is still model-based and requires testing.
+
+**5. What happens when evidence is missing or the answer is unsupported?**  
+The system should return an insufficient-evidence answer with an empty citation list, so it does not present unsupported content as sourced.
