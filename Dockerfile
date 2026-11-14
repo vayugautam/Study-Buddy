@@ -30,4 +30,4 @@ COPY --from=frontend-build /frontend/dist ./dist
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "echo '=== ALEMBIC DIAGNOSTIC START ==='; python -m alembic current 2>&1; echo \"=== ALEMBIC EXIT CODE: $? ===\"; echo '=== ALEMBIC DIAGNOSTIC END ==='; exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+CMD ["sh", "-c", "python -m alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
