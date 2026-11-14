@@ -30,4 +30,4 @@ COPY --from=frontend-build /frontend/dist ./dist
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+CMD ["sh", "-c", "alembic current || true; exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
