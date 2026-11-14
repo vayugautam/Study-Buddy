@@ -152,6 +152,7 @@ export default function ChatPage() {
     <Alert>{error}</Alert><Alert tone="success" onDismiss={() => setNotice("")}>{notice}</Alert>
     <div className="chat-layout">
       <aside className="chat-list-panel">
+        <Link className="chat-back-workspace" to="/app"><Icon name="arrow" size={15} /> Back to workspace</Link>
         <button className="new-session-button" onClick={() => { setSearchParams({}); setScope("single_document"); setSelectedIds(readyDocs[0] ? [readyDocs[0].id] : []); }}><Icon name="plus" size={17} /> Start a new session</button>
         <span className="chat-list-label">RECENT SESSIONS</span>
         <div className="chat-list-items">{conversations.length ? conversations.map((chat) => <button key={chat.id} className={`chat-list-item ${activeId === chat.id ? "chat-list-item-active" : ""}`} onClick={() => setSearchParams({ conversation: chat.id })}><span className="chat-list-icon"><Icon name="chat" size={16} /></span><span className="chat-list-copy"><strong>{chat.title}</strong><small>{formatDate(chat.updated_at)}</small></span></button>) : <p className="chat-list-empty">Your conversations will appear here.</p>}</div>
