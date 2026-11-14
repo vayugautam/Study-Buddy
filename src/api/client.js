@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 const DEFAULT_TIMEOUT = 30_000;
 const UPLOAD_TIMEOUT = 10 * 60_000;
 const TOKEN_KEY = "studybuddy_access_token";

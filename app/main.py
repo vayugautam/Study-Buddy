@@ -1,5 +1,6 @@
-
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import logging
@@ -32,6 +33,7 @@ if EVALUATION_MODE:
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "dist"
 
 app = FastAPI(
     title="Study-Buddy AI",
@@ -86,8 +88,13 @@ class AskResponse(BaseModel):
     sources: list[SourceResponse]
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def home():
+    index_file = FRONTEND_DIST / "index.html"
+
+    if index_file.is_file():
+        return FileResponse(index_file)
+
     return {
         "message": "Study-Buddy AI API is running",
         "environment": "evaluation" if EVALUATION_MODE else "application",
@@ -173,3 +180,39 @@ def ask_question(
             status_code=500,
             detail="Failed to process the question. Check the server logs."
         )
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def frontend_fallback(full_path: str):
+    reserved_paths = {
+        "auth",
+        "documents",
+        "conversations",
+        "ask",
+        "health",
+    }
+
+    first_segment = full_path.split("/", 1)[0]
+
+    # Unknown API paths should remain API 404s, not return React HTML.
+    if first_segment in reserved_paths:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    dist_root = FRONTEND_DIST.resolve()
+    requested_file = (dist_root / full_path).resolve()
+
+    # Serve an existing frontend file, such as a JS or CSS asset.
+    if requested_file.is_relative_to(dist_root) and requested_file.is_file():
+        return FileResponse(requested_file)
+
+    # Missing files with extensions should return 404.
+    if Path(full_path).suffix:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # React Router paths should return the frontend entry point.
+    index_file = dist_root / "index.html"
+
+    if index_file.is_file():
+        return FileResponse(index_file)
+
+    raise HTTPException(status_code=404, detail="Not found")

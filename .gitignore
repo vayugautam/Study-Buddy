@@ -11,3 +11,5 @@ data/evaluation.sqlite3
 data/evaluation_uploads/
 tests/evaluation/fixture-state.json
 evaluation-report.json
+
+app/main.py.backup
