@@ -186,3 +186,126 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .chat-mode .message-stream { padding: 18px 14px; }
   .chat-mode .chat-composer { width: calc(100% - 20px); margin: 0 10px 10px; }
 }
+
+/* =================================
+   STUDY BUDDY - RICH AI RESPONSES
+================================= */
+
+.markdown-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #27352d;
+  overflow-wrap: anywhere;
+}
+
+.markdown-content p {
+  margin: 0 0 14px;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: #254d3c;
+  line-height: 1.4;
+  margin: 24px 0 12px;
+  font-weight: 700;
+}
+
+.markdown-content h1 { font-size: 25px; }
+.markdown-content h2 { font-size: 21px; }
+.markdown-content h3 { font-size: 18px; }
+.markdown-content h4 { font-size: 16px; }
+
+.markdown-content strong {
+  color: #254d3c;
+  font-weight: 700;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 25px;
+  margin: 10px 0 18px;
+}
+
+.markdown-content li {
+  margin: 6px 0;
+}
+
+/* Tables */
+
+.markdown-content table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 14px;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 11px 14px;
+  border: 1px solid #e1e9e2;
+  text-align: left;
+}
+
+.markdown-content th {
+  background: #edf4ee;
+  color: #315f49;
+  font-weight: 700;
+}
+
+.markdown-content tr:nth-child(even) {
+  background: #f8faf8;
+}
+
+/* Mathematical formulas */
+
+.markdown-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px 4px;
+  margin: 18px 0;
+  text-align: center;
+}
+
+/* Code blocks */
+
+.markdown-content pre {
+  overflow-x: auto;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 12px;
+  background: #f4f6f4;
+  font-size: 13px;
+}
+
+.markdown-content code {
+  font-family: Consolas, monospace;
+}
+
+.markdown-content :not(pre) > code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #edf2ed;
+  color: #315f49;
+}
+
+/* Important notes */
+
+.markdown-content blockquote {
+  margin: 16px 0;
+  padding: 12px 17px;
+  border-left: 4px solid #6b9b78;
+  background: #f1f6f1;
+  border-radius: 0 9px 9px 0;
+}
+
+/* Separators */
+
+.markdown-content hr {
+  border: 0;
+  border-top: 1px solid #e5ebe6;
+  margin: 22px 0;
+}
