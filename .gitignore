@@ -1,15 +1,41 @@
+# Secrets and local environment files
 .env
+.env.*
+!.env.example
+
+# Python environments, caches, and test output
+.venv/
+venv/
 __pycache__/
-.venv
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage/
+*.coverage
+
+# JavaScript dependencies and generated builds
 node_modules/
 dist/
 .vite/
+
+# Local uploads, study material, databases, and evaluation output
 data/uploads/
-# Local study material must not be added to the public repository.
-data/*.pdf
-data/evaluation.sqlite3
 data/evaluation_uploads/
+data/*.pdf
+data/*.sqlite
+data/*.sqlite3
+data/*.db
 tests/evaluation/fixture-state.json
 evaluation-report.json
 
+# Logs, editor, and operating-system files
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local/obsolete backup
 app/main.py.backup
