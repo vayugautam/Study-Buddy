@@ -21,6 +21,20 @@ test_qdrant_connection.py
 test_rag.py
 test_retrieval.py
 
+# Root-level exploratory tests and implementation notes (keep local, out of GitHub)
+/test_chunking.py
+/test_embedding.py
+/test_evaluation.py
+/test_qdrant_connection.py
+/test_rag.py
+/test_retrieval.py
+/3 - Multidocument ingestion and Qdrant Metadata
+/4 - Conversation management and persistent chat history
+/5 - Scoped retrieval and RAG orchestration
+/6 - Evidence-based answers and citations
+/7 - Conversation-aware questions
+/DEPLOYMENT.md
+
 # JavaScript dependencies and generated builds
 node_modules/
 dist/
