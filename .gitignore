@@ -14,6 +14,12 @@ __pycache__/
 htmlcov/
 coverage/
 *.coverage
+test_chunking.py
+test_embedding.py
+test_evaluation.py
+test_qdrant_connection.py
+test_rag.py
+test_retrieval.py
 
 # JavaScript dependencies and generated builds
 node_modules/
@@ -39,3 +45,9 @@ Thumbs.db
 
 # Local/obsolete backup
 app/main.py.backup
+
+3 - Multidocument ingestion and Qdrant Metadata
+4 - Conversation management and persistent chat history
+5 - Scoped retrieval and RAG orchestration
+6 - Evidence-based answers and citations
+7 - Conversation-aware questions
